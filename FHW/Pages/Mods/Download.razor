@@ -1,5 +1,44 @@
-﻿<h3>Download</h3>
+﻿@page "/Mods/Download"
+
+<PageTitle>Скачать моды</PageTitle>
+
+<h3>Скачивание модов [FACTORIO]</h3>
 
 @code {
+    private string _mod;
 
+    public IEnumerable<ModsList.Result> mods { get; set; }
+
+    private async Task<AutoCompleteDataProviderResult<ModsList.Result>> ModsDataProvider(AutoCompleteDataProviderRequest<ModsList.Result> request)
+    {
+        if (mods is null) // pull customers only one time for client-side autocomplete
+            mods = GetMods(); // call a service or an API to pull the customers
+
+        return await Task.FromResult(request.ApplyTo(mods.OrderBy(mod => mod.Title)));
+    }
+
+    private IEnumerable<ModsList.Result> GetMods()
+    {
+        if (!Data.Temp.ModsLoad) return Data.Temp.MainModsList.ToList();
+        else return new List<ModsList.Result>();
+    }
+
+    private void OnAutoCompleteChanged(ModsList.Result mod)
+    {
+        // TODO: handle your own logic
+
+        // NOTE: do null check
+        Console.WriteLine($"'{mod?.Title}' selected.");
+    }
 }
+
+<div class="row">
+    <div class="col-md-5 col-sm-12">
+        <AutoComplete @bind-Value="_mod"
+                      TItem="ModsList.Result"
+                      DataProvider="ModsDataProvider"
+                      PropertyName="Title"
+                      Placeholder="Search a mod..."
+                      OnChanged="(ModsList.Result mod) => OnAutoCompleteChanged(mod)" />
+    </div>
+</div>
