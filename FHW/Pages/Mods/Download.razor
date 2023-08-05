@@ -2,19 +2,19 @@
 
 <PageTitle>Скачать моды</PageTitle>
 
-<h3>Скачивание модов [FACTORIO]</h3>
-
 @code {
     private string _mod;
 
     public IEnumerable<ModsList.Result> mods { get; set; }
+
+    public ModsList.Result? selectedMod { get; set; }
 
     private async Task<AutoCompleteDataProviderResult<ModsList.Result>> ModsDataProvider(AutoCompleteDataProviderRequest<ModsList.Result> request)
     {
         if (mods is null) // pull customers only one time for client-side autocomplete
             mods = GetMods(); // call a service or an API to pull the customers
 
-        return await Task.FromResult(request.ApplyTo(mods.OrderBy(mod => mod.Title)));
+        return await Task.FromResult(request.ApplyTo(mods.OrderByDescending(mod => mod.DownloadsCount)));
     }
 
     private IEnumerable<ModsList.Result> GetMods()
@@ -25,20 +25,101 @@
 
     private void OnAutoCompleteChanged(ModsList.Result mod)
     {
-        // TODO: handle your own logic
-
-        // NOTE: do null check
-        Console.WriteLine($"'{mod?.Title}' selected.");
+        selectedMod = mod;
     }
 }
 
-<div class="row">
-    <div class="col-md-5 col-sm-12">
-        <AutoComplete @bind-Value="_mod"
-                      TItem="ModsList.Result"
-                      DataProvider="ModsDataProvider"
-                      PropertyName="Title"
-                      Placeholder="Search a mod..."
-                      OnChanged="(ModsList.Result mod) => OnAutoCompleteChanged(mod)" />
+
+<div class="p-3">
+    <div class="card">
+        <div class="card-header text-center">
+            <h1>Mods downloader</h1>
+        </div>
+        <div class="card-body">
+            <div class="p-3">
+                <div class="row">
+                    <div class="m-0 p-0">
+                        <AutoComplete @bind-Value="_mod"
+                                      TItem="ModsList.Result"
+                                      DataProvider="ModsDataProvider"
+                                      PropertyName="Title"
+                                      Placeholder="Enter mod title"
+                                      OnChanged="(ModsList.Result mod) => OnAutoCompleteChanged(mod)" />
+                    </div>
+
+                </div>
+                @if(selectedMod != null)
+                {
+                    <div class="row">
+                        <div class="input-group p-0 mt-1" role="group" aria-label="Mod controls">
+                            <input type="text" class="form-control" placeholder="Version" aria-label="Version">
+
+                            <button type="button" class="btn btn-warning">
+                                Download
+                            </button>
+                            <button type="button" class="btn btn-danger" disabled>
+                                Remove
+                            </button>
+                            <button type="button" class="btn btn-secondary" disabled>
+                                Open folder
+                            </button>
+                            <button type="button" class="btn btn-success" disabled>
+                                Launch game
+                            </button>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-11">
+                            <h3>@selectedMod?.Title</h3>
+                            <br>
+                            <dl class="row">
+                                <dt class="col-sm-3">ID:</dt>
+                                <dd class="col-sm-9" id="mod-info-name">@selectedMod?.Name</dd>
+                                <dt class="col-sm-3">Владелец:</dt>
+                                <dd class="col-sm-9" id="mod-info-owner">@selectedMod?.Owner</dd>
+                                <dt class="col-sm-3">Категория:</dt>
+                                <dd class="col-sm-9" id="mod-info-category">@selectedMod?.Category</dd>
+                                <dt class="col-sm-3">Описание:</dt>
+                                <dd class="col-sm-9" id="mod-info-summary">@selectedMod?.Summary</dd>
+                                <dt class="col-sm-3">Загрузок:</dt>
+                                <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.DownloadsCount</dd>
+                            </dl>
+                            <br>
+                            <dl class="row">
+                                <dt class="col-sm-3" id="mod-info-required-dependencies-header">
+                                    Требуемые зависимости:
+                                </dt>
+                                <dd class="col-sm-9" id="mod-info-required-dependencies">dependencies list</dd>
+                                <dt class="col-sm-3" id="mod-info-optional-dependencies-header">
+                                    Опциональные
+                                    зависимости:
+                                </dt>
+                                <dd class="col-sm-9" id="mod-info-optional-dependencies">optional</dd>
+                                <dt class="col-sm-3" id="mod-info-incompatible-dependencies-header">
+                                    Несовместимые моды:
+                                </dt>
+                                <dd class="col-sm-9" id="mod-info-incompatible-dependencies">not compability</dd>
+                            </dl>
+                            <a style="display: none" id="hidden-downloader"></a>
+                        </div>
+                        <div class="col-1" style="display:none">
+                            <div class="float-end">
+                                <svg class="bd-placeholder-img rounded" width="200" height="200" role="img"
+                                     aria-label="Placeholder: 200x200" preserveAspectRatio="xMidYMid slice"
+                                     focusable="false">
+                                    <title>Placeholder</title>
+                                    <rect width="100%" height="100%" fill="#868e96"></rect>
+                                    <text x="50%" y="50%"
+                                          fill="#dee2e6" dy=".3em">200x200</text>
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        </div>
     </div>
 </div>
