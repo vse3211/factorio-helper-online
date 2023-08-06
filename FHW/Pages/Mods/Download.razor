@@ -1,4 +1,6 @@
 ﻿@page "/Mods/Download"
+@using System.Text.RegularExpressions;
+@inject NavigationManager NavigationManager
 
 <PageTitle>Скачать моды</PageTitle>
 
@@ -8,6 +10,58 @@
     public IEnumerable<ModsList.Result> mods { get; set; }
 
     public ModsList.Result? selectedMod { get; set; }
+    public ModObj.Mod? selectedModInfo { get; set; }
+    private string _selectedVersion = "";
+    public string selectedVersion
+    {
+        get
+        {
+            return _selectedVersion;
+        }
+        set
+        {
+            if (!String.IsNullOrWhiteSpace(value))
+            {
+                MainDependencies.Clear();
+                AdditionalDependencies.Clear();
+                BadDependencies.Clear();
+                foreach (var dep in selectedModInfo.Releases.ToList().Find(x => x.Version == value).InfoJson.Dependencies)
+                {
+                    string pattern = @"^((?:)|(?:\?)|(?:\(\?\))|(?:!)|(?:~))(?:\s?)([%\w\s-]+)(?:\s{0,})(?:((?:=>)|(?:==)|(?:=)|(?:<=)|(?:>=)|(?:<)|(?:>)|(?:))(?:\s{0,})((\d+\.\d+\.\d+)|(\d+\.\d+)))?$";
+                    Match m = Regex.Match(dep, pattern, RegexOptions.IgnoreCase);
+                    switch (m.Groups[2].Value.Trim())
+                    {
+                        case "base":
+                            BaseDependency = m.Groups[4].Value;
+                            break;
+                        default:
+                            switch (m.Groups[1].Value)
+                            {
+                                case "":
+                                    MainDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    break;
+                                case "(?)":
+                                case "?":
+                                    AdditionalDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    break;
+                                case "!":
+                                    BadDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    break;
+                            }
+                            break;
+                    }
+
+                }
+            }
+
+            _selectedVersion = value;
+        }
+    }
+
+    public string BaseDependency { get; set; } = "";
+    public List<string> MainDependencies { get; set; } = new List<string>();
+    public List<string> AdditionalDependencies { get; set; } = new List<string>();
+    public List<string> BadDependencies { get; set; } = new List<string>();
 
     private async Task<AutoCompleteDataProviderResult<ModsList.Result>> ModsDataProvider(AutoCompleteDataProviderRequest<ModsList.Result> request)
     {
@@ -25,7 +79,30 @@
 
     private void OnAutoCompleteChanged(ModsList.Result mod)
     {
+        selectedModInfo = null;
+        if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+        {
+            Data.Temp.LastUpdateMods.Add(mod.Name,
+                new Mod.Info
+                    {
+                        Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
+                        LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
+                    });
+        }
+        if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
+        {
+            Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
+            Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+        }
+
+        selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
         selectedMod = mod;
+        BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
+    }
+
+    private void DownloadMod()
+    {
+        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
     }
 }
 
@@ -33,7 +110,7 @@
 <div class="p-3">
     <div class="card">
         <div class="card-header text-center">
-            <h1>Mods downloader</h1>
+            <h1>Поиск и скачивание модов</h1>
         </div>
         <div class="card-body">
             <div class="p-3">
@@ -48,24 +125,34 @@
                     </div>
 
                 </div>
-                @if(selectedMod != null)
+                @if (selectedMod != null && selectedModInfo != null)
                 {
                     <div class="row">
                         <div class="input-group p-0 mt-1" role="group" aria-label="Mod controls">
-                            <input type="text" class="form-control" placeholder="Version" aria-label="Version">
+                            <select class="form-control" id="versionSelect" @bind="selectedVersion">
+                                <option />
+                                @foreach (var release in selectedModInfo?.Releases.OrderByDescending(ver => ver.Version))
+                                {
+                                    <option value="@release.Version">@release.Version</option>
+                                }
+                            </select>
 
-                            <button type="button" class="btn btn-warning">
-                                Download
-                            </button>
-                            <button type="button" class="btn btn-danger" disabled>
-                                Remove
-                            </button>
-                            <button type="button" class="btn btn-secondary" disabled>
-                                Open folder
-                            </button>
-                            <button type="button" class="btn btn-success" disabled>
-                                Launch game
-                            </button>
+                            @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                            {
+                                <button @onclick="DownloadMod" type="button" class="btn btn-warning">
+                                    Download
+                                </button>
+                                <button type="button" class="btn btn-danger" disabled>
+                                    Remove
+                                </button>
+                                <button type="button" class="btn btn-secondary" disabled>
+                                    Open folder
+                                </button>
+                                <button type="button" class="btn btn-success" disabled>
+                                    Launch game
+                                </button>
+                            }
+
                         </div>
                     </div>
                     <br />
@@ -84,24 +171,58 @@
                                 <dd class="col-sm-9" id="mod-info-summary">@selectedMod?.Summary</dd>
                                 <dt class="col-sm-3">Загрузок:</dt>
                                 <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.DownloadsCount</dd>
+                                <dt class="col-sm-3">Factorio:</dt>
+                                <dd class="col-sm-9" id="mod-info-downloads">@BaseDependency</dd>
                             </dl>
                             <br>
-                            <dl class="row">
-                                <dt class="col-sm-3" id="mod-info-required-dependencies-header">
-                                    Требуемые зависимости:
-                                </dt>
-                                <dd class="col-sm-9" id="mod-info-required-dependencies">dependencies list</dd>
-                                <dt class="col-sm-3" id="mod-info-optional-dependencies-header">
-                                    Опциональные
-                                    зависимости:
-                                </dt>
-                                <dd class="col-sm-9" id="mod-info-optional-dependencies">optional</dd>
-                                <dt class="col-sm-3" id="mod-info-incompatible-dependencies-header">
-                                    Несовместимые моды:
-                                </dt>
-                                <dd class="col-sm-9" id="mod-info-incompatible-dependencies">not compability</dd>
-                            </dl>
-                            <a style="display: none" id="hidden-downloader"></a>
+                            @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                            {
+                                <dl class="row">
+                                    @if (MainDependencies.Count > 0)
+                                    {
+                                        <dt class="col-sm-3" id="mod-info-required-dependencies-header">
+                                            Требуемые зависимости:
+                                        </dt>
+                                        <dd class="col-sm-9" id="mod-info-required-dependencies">
+                                            <ul>
+                                                @foreach (var dep in MainDependencies)
+                                                {
+                                                    <li class="text-success">@dep</li>
+                                                }
+                                            </ul>
+                                        </dd>
+                                    }
+                                    @if (AdditionalDependencies.Count > 0)
+                                    {
+                                        <dt class="col-sm-3" id="mod-info-optional-dependencies-header">
+                                            Опциональные
+                                            зависимости:
+                                        </dt>
+                                        <dd class="col-sm-9" id="mod-info-optional-dependencies">
+                                            <ul>
+                                                @foreach (var dep in AdditionalDependencies)
+                                                {
+                                                    <li class="text-warning">@dep</li>
+                                                }
+                                            </ul>
+                                        </dd>
+                                    }
+                                    @if (BadDependencies.Count > 0)
+                                    {
+                                        <dt class="col-sm-3" id="mod-info-incompatible-dependencies-header">
+                                            Несовместимые моды:
+                                        </dt>
+                                        <dd class="col-sm-9" id="mod-info-incompatible-dependencies">
+                                            <ul>
+                                                @foreach (var dep in BadDependencies)
+                                                {
+                                                    <li class="text-danger">@dep</li>
+                                                }
+                                            </ul>
+                                        </dd>
+                                    }
+                                </dl>
+                            }
                         </div>
                         <div class="col-1" style="display:none">
                             <div class="float-end">

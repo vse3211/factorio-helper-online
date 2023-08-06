@@ -1,4 +1,5 @@
-﻿namespace FHW.Data
+﻿
+namespace FHW.Data
 {
     public static class Temp
     {
@@ -6,6 +7,7 @@
         public static Exception? ModsLoadError { get; private set; } = null;
 
         public static List<ModsList.Result> MainModsList { get; private set; } = new List<ModsList.Result>();
+        public static Dictionary<string, Mod.Info> LastUpdateMods { get; set; } = new Dictionary<string, Mod.Info>();
 
         public static void LoadModsList()
         {

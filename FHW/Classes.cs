@@ -55,6 +55,15 @@ namespace LMC
     }
 }
 
+namespace Mod
+{
+    public class Info
+    {
+        public ModObj.Mod Mod { get; set; }
+        public long LastUpdate { get; set; }
+    }
+}
+
 /// <summary>
 /// Mods JSON (Mod)
 /// </summary>
