@@ -5,12 +5,33 @@
 <PageTitle>Скачать моды</PageTitle>
 
 @code {
-    private string _mod;
+    [Inject] protected ToastService ToastService { get; set; }
 
     public IEnumerable<ModsList.Result> mods { get; set; }
 
-    public ModsList.Result? selectedMod { get; set; }
+    private string _mod;
+    public string BaseDependency { get; set; } = "";
+    public List<Mod.Dependency> MainDependencies { get; set; } = new List<Mod.Dependency>();
+    public List<Mod.Dependency> AdditionalDependencies { get; set; } = new List<Mod.Dependency>();
+    public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
+
+    private ModsList.Result? _selectedMod;
+    public ModsList.Result? selectedMod 
+    {
+        get
+        {
+            return _selectedMod;
+        }
+        set
+        {
+            _selectedMod = value;
+            selectedVersion = "";
+            ClearDependencies();
+        }
+    }
+
     public ModObj.Mod? selectedModInfo { get; set; }
+
     private string _selectedVersion = "";
     public string selectedVersion
     {
@@ -22,9 +43,7 @@
         {
             if (!String.IsNullOrWhiteSpace(value))
             {
-                MainDependencies.Clear();
-                AdditionalDependencies.Clear();
-                BadDependencies.Clear();
+                ClearDependencies();
                 foreach (var dep in selectedModInfo.Releases.ToList().Find(x => x.Version == value).InfoJson.Dependencies)
                 {
                     string pattern = @"^((?:)|(?:\?)|(?:\(\?\))|(?:!)|(?:~))(?:\s?)([%\w\s-]+)(?:\s{0,})(?:((?:=>)|(?:==)|(?:=)|(?:<=)|(?:>=)|(?:<)|(?:>)|(?:))(?:\s{0,})((\d+\.\d+\.\d+)|(\d+\.\d+)))?$";
@@ -35,17 +54,18 @@
                             BaseDependency = m.Groups[4].Value;
                             break;
                         default:
+                            Mod.Dependency dependency = new Mod.Dependency { Name = m.Groups[2].Value.Trim(), Requirements = m.Groups[3].Value.Trim(), Version = m.Groups[4].Value.Trim() };
                             switch (m.Groups[1].Value)
                             {
                                 case "":
-                                    MainDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    MainDependencies.Add(dependency);
                                     break;
                                 case "(?)":
                                 case "?":
-                                    AdditionalDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    AdditionalDependencies.Add(dependency);
                                     break;
                                 case "!":
-                                    BadDependencies.Add($"{m.Groups[2].Value}{m.Groups[3].Value} {m.Groups[4].Value}");
+                                    BadDependencies.Add(dependency);
                                     break;
                             }
                             break;
@@ -58,10 +78,7 @@
         }
     }
 
-    public string BaseDependency { get; set; } = "";
-    public List<string> MainDependencies { get; set; } = new List<string>();
-    public List<string> AdditionalDependencies { get; set; } = new List<string>();
-    public List<string> BadDependencies { get; set; } = new List<string>();
+
 
     private async Task<AutoCompleteDataProviderResult<ModsList.Result>> ModsDataProvider(AutoCompleteDataProviderRequest<ModsList.Result> request)
     {
@@ -100,9 +117,30 @@
         BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
     }
 
+    private void ClearDependencies()
+    {
+        MainDependencies.Clear();
+        AdditionalDependencies.Clear();
+        BadDependencies.Clear();
+    }
+
     private void DownloadMod()
     {
         NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+    }
+
+    private void FindModByName(string Name, string? Version = null)
+    {
+        var fMod = mods.ToList().Find(x => x.Name == Name);
+        if (fMod != null)
+        {
+            OnAutoCompleteChanged(fMod);
+            if (Version != null) selectedVersion = Version;
+        }
+        else
+        {
+            ToastService.Notify(new(ToastType.Danger, $"Ошибка: мод не найден"));
+        }
     }
 }
 
@@ -187,7 +225,7 @@
                                             <ul>
                                                 @foreach (var dep in MainDependencies)
                                                 {
-                                                    <li class="text-success">@dep</li>
+                                                    <li><a class="text-success" @onclick="() => FindModByName(dep.Name, dep.Version)">@dep.Name @dep.Requirements @dep.Version</a></li>
                                                 }
                                             </ul>
                                         </dd>
@@ -202,7 +240,7 @@
                                             <ul>
                                                 @foreach (var dep in AdditionalDependencies)
                                                 {
-                                                    <li class="text-warning">@dep</li>
+                                                    <li><a class="text-warning" @onclick="() => FindModByName(dep.Name, dep.Version)">@dep.Name @dep.Requirements @dep.Version</a></li>
                                                 }
                                             </ul>
                                         </dd>
@@ -216,7 +254,7 @@
                                             <ul>
                                                 @foreach (var dep in BadDependencies)
                                                 {
-                                                    <li class="text-danger">@dep</li>
+                                                    <li><a class="text-danger" @onclick="() => FindModByName(dep.Name)">@dep.Name @dep.Requirements @dep.Version</a></li>
                                                 }
                                             </ul>
                                         </dd>

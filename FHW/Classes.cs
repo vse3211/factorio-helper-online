@@ -62,6 +62,13 @@ namespace Mod
         public ModObj.Mod Mod { get; set; }
         public long LastUpdate { get; set; }
     }
+
+    public class Dependency
+    {
+        public string Name { get; set; }
+        public string Version { get; set; }
+        public string Requirements { get; set; }
+    }
 }
 
 /// <summary>
