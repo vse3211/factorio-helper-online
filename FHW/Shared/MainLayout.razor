@@ -6,7 +6,7 @@
 
     <Sidebar @ref="sidebar"
              IconName="IconName.Gear"
-             Title="Factorio Helper"
+             Title="FHO"
              DataProvider="SidebarDataProvider" />
 
     <main>
@@ -41,7 +41,9 @@
     {
         navItems = new List<NavItem>
         {
-            new NavItem { Id = "1", Href = "/", IconName = IconName.House, Text = "Главная", Match=NavLinkMatch.All},
+            new NavItem { Id = "1", Href = "/", IconName = IconName.House, Text = "Factorio Helper"},
+            new NavItem { Id = "11", Href = "/", IconName = IconName.Cloud, Text = "FHO", Match=NavLinkMatch.All, ParentId="1" },
+            new NavItem { Id = "12", Href = "https://vk.com/wall-127017434_1148", IconName = IconName.Windows, Text = "FHTM (Windows)", ParentId="1" },
 
             new NavItem { Id = "2", IconName = IconName.Box2, Text = "Моды" },
             new NavItem { Id = "21", Href = "/Mods/Download", IconName = IconName.Download, Text = "Скачать", ParentId="2" },
