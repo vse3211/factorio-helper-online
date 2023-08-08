@@ -94,7 +94,7 @@
         else return new List<ModsList.Result>();
     }
 
-    private void OnAutoCompleteChanged(ModsList.Result mod)
+    private void OnAutoCompleteChanged(ModsList.Result mod, bool selectVersion = true)
     {
         selectedModInfo = null;
         if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
@@ -115,6 +115,7 @@
         selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
         selectedMod = mod;
         BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
+        if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
     }
 
     private void ClearDependencies()
@@ -134,7 +135,9 @@
         var fMod = mods.ToList().Find(x => x.Name == Name);
         if (fMod != null)
         {
-            OnAutoCompleteChanged(fMod);
+            if (String.IsNullOrWhiteSpace(Version)) Version = null;
+            if (Version != null) OnAutoCompleteChanged(fMod, false);
+            else OnAutoCompleteChanged(fMod, true);
             if (Version != null) selectedVersion = Version;
         }
         else
@@ -195,7 +198,7 @@
                     </div>
                     <br />
                     <div class="row">
-                        <div class="col-11">
+                        <div class="col-8">
                             <h3>@selectedMod?.Title</h3>
                             <br>
                             <dl class="row">
@@ -211,6 +214,8 @@
                                 <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.DownloadsCount</dd>
                                 <dt class="col-sm-3">Factorio:</dt>
                                 <dd class="col-sm-9" id="mod-info-downloads">@BaseDependency</dd>
+                                <dt class="col-sm-3">Актуальная версия:</dt>
+                                <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.LatestRelease.Version</dd>
                             </dl>
                             <br>
                             @if (!String.IsNullOrWhiteSpace(selectedVersion))
@@ -262,19 +267,22 @@
                                 </dl>
                             }
                         </div>
-                        <div class="col-1" style="display:none">
-                            <div class="float-end">
-                                <svg class="bd-placeholder-img rounded" width="200" height="200" role="img"
-                                     aria-label="Placeholder: 200x200" preserveAspectRatio="xMidYMid slice"
-                                     focusable="false">
-                                    <title>Placeholder</title>
-                                    <rect width="100%" height="100%" fill="#868e96"></rect>
-                                    <text x="50%" y="50%"
-                                          fill="#dee2e6" dy=".3em">200x200</text>
-                                </svg>
+                        @if (!String.IsNullOrWhiteSpace(selectedVersion) && !String.IsNullOrWhiteSpace(selectedModInfo.Thumbnail))
+                        {
+                            <div class="col-4">
+                                <div class="float-end">
+                                    <img class="rounded" src="@($"https://assets-mod.factorio.com{selectedModInfo.Thumbnail}")" style="width: 200px; height:200px" />
+                                </div>
                             </div>
-                        </div>
-
+                        }
+                        else
+                        {
+                            <div class="col-4">
+                                <div class="float-end">
+                                    <Icon class="rounded" Name="IconName.GearFill" style="font-size: 200px!important; color:darkorange" />
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
 
