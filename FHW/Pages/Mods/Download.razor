@@ -9,6 +9,9 @@
     [Inject] protected ToastService ToastService { get; set; }
     public string? ClientIP { get; set; }
 
+    [Parameter]
+    public string ClientStatus { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
@@ -135,7 +138,8 @@
 
     private void DownloadMod()
     {
-        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        //NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        JSRuntime.InvokeAsync<string>("sendRequestToClient");
     }
 
     private void FindModByName(string Name, string? Version = null)

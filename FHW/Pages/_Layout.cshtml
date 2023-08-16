@@ -63,5 +63,30 @@
             return ip;
         }
     </script>
+    <script>
+        function sendRequestToClient() {
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://192.168.11.69:9955");
+            xhr.setRequestHeader("Accept", "application/json");
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    console.log(xhr.status);
+                    console.log(xhr.responseText);
+                    return xhr.status + xhr.responseText;
+                }
+            };
+
+            let data = `{
+                  "Id": 78912,
+                  "Customer": "Jason Sweet",
+                  "Quantity": 1,
+                  "Price": 18.00
+                }`;
+
+            xhr.send(data);
+        }
+    </script>
 </body>
 </html>
