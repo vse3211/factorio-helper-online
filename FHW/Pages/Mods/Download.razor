@@ -1,11 +1,19 @@
 ﻿@page "/Mods/Download"
 @using System.Text.RegularExpressions;
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Скачать моды</PageTitle>
 
 @code {
     [Inject] protected ToastService ToastService { get; set; }
+    public string? ClientIP { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+    }
+
 
     public IEnumerable<ModsList.Result> mods { get; set; }
 

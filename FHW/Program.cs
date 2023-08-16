@@ -2,6 +2,7 @@ using BlazorBootstrap;
 using FHW.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBlazorBootstrap();
-Temp.LoadModsList();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
+//Temp.LoadModsList();
 
 var app = builder.Build();
 
@@ -23,6 +26,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMvcWithDefaultRoute();
 
 app.UseStaticFiles();
 

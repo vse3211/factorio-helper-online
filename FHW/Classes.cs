@@ -71,6 +71,43 @@ namespace Mod
     }
 }
 
+namespace Client
+{
+    public class DesktopInfo
+    {
+        public string Name { get; set; }
+        public string IP { get; set; }
+        public long LastActivity { get; set; } = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+    }
+
+    public class DesktopTask
+    {
+        public string Id { get; set; }
+        public TaskType Type { get; set; }
+        public List<TaskInfo> Info { get; set; } = new List<TaskInfo>();
+        public long Created { get; set; } = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+        public long LastActivity { get; set; } = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+    }
+
+    public enum TaskType
+    {
+        DownloadMod = 10,
+        RemoveMod = 11,
+        EnableMod = 12,
+        DisableMod = 13,
+        DownloadGame = 21,
+        RemoveGame = 22,
+        SelectGameVersion = 23
+    }
+
+    public class TaskInfo
+    {
+        public string Name { get; set; }
+        public string Version { get; set; }
+        public string Link { get; set; }
+    }
+}
+
 /// <summary>
 /// Mods JSON (Mod)
 /// </summary>

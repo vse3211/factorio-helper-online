@@ -3,6 +3,7 @@ namespace FHW.Data
 {
     public static class Temp
     {
+        #region Mods
         public static bool ModsLoad { get; private set; } = false;
         public static Exception? ModsLoadError { get; private set; } = null;
 
@@ -26,5 +27,10 @@ namespace FHW.Data
                 ModsLoadError = ex;
             }
         }
+        #endregion
+
+        #region Clients
+        public static Dictionary<string, Dictionary<string,Client.DesktopInfo>> Clients { get; private set; }
+        #endregion
     }
 }

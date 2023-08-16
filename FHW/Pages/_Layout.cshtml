@@ -52,60 +52,15 @@
         }
     </script>
 
-    <!--Network scripts-->
-    <script src="https://cdn.jsdelivr.net/npm/dohjs@latest/dist/doh.min.js"></script>
     <script>
-        /*const peerConnection = new RTCPeerConnection({ iceServers: [] });
-        peerConnection.createDataChannel('');
-
-        peerConnection.createOffer()
-            .then((offer) => peerConnection.setLocalDescription(offer))
-            .catch((error) => console.log(error));
-
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                console.log(`Client's IP address is ${event.candidate.address}`);
-            }
-        };*/
-
-
-
-        const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-        const peerConnection = new RTCPeerConnection(configuration);
-
-        peerConnection.createDataChannel('');
-
-        peerConnection.createOffer()
-            .then(offer => peerConnection.setLocalDescription(offer))
-            .catch(error => console.log(error));
-
-        peerConnection.onicecandidate = event => {
-            if (event.candidate) {
-                const ipAddress = event.candidate.relatedAddress || event.candidate.address;
-                console.log('Local IP address:', ipAddress);
-            }
-        };
-
-    </script>
-    <script>
-        const guid = generateGUID();
-        const xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                alert(xhr.responseText);
-            }
-        };
-
-        xhr.open('GET', `http://localhost:12345/?guid=${guid}`, true);
-        xhr.send();
-
-        function generateGUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0,
-                    v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
+        var ip;
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                ip = data.ip;
             });
+        function getClientIP () {
+            return ip;
         }
     </script>
 </body>
