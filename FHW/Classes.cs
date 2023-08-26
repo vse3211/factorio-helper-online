@@ -78,7 +78,8 @@ namespace Client
     public class DesktopInfo
     {
         public string Name { get; set; }
-        public string IP { get; set; }
+        public string LocalIP { get; set; }
+        public string PublicIP { get; set; }
         public long LastActivity { get; set; } = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
     }
 

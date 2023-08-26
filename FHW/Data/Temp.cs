@@ -30,7 +30,7 @@ namespace FHW.Data
         #endregion
 
         #region Clients
-        public static Dictionary<string, Dictionary<string,Client.DesktopInfo>> Clients { get; private set; }
+        public static Dictionary<string, Dictionary<string, Client.DesktopInfo>> Clients { get; private set; } = new Dictionary<string, Dictionary<string, Client.DesktopInfo>>();
         #endregion
     }
 }
