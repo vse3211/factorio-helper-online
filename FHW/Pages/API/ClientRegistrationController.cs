@@ -12,37 +12,37 @@ namespace FHW.Pages.API
 
         //Register client
         [HttpPost]
-        public IActionResult Post(string Name, string PublicIP, string LocalIP)
+        public IActionResult Post(Client.DesktopInfo desktop)
         {
-            if (Temp.Clients.ContainsKey(PublicIP))
+            if (Temp.Clients.ContainsKey(desktop.PublicIP))
             {
-                if (Temp.Clients[PublicIP].ContainsKey(LocalIP))
+                if (Temp.Clients[desktop.PublicIP].ContainsKey(desktop.LocalIP))
                 {
-                    Temp.Clients[PublicIP][LocalIP].Name = Name;
-                    Temp.Clients[PublicIP][LocalIP].LastActivity = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+                    Temp.Clients[desktop.PublicIP][desktop.LocalIP].Name = desktop.Name;
+                    Temp.Clients[desktop.PublicIP][desktop.LocalIP].LastActivity = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
                 }
                 else
                 {
-                    Temp.Clients[PublicIP].Add(LocalIP, new Client.DesktopInfo { LocalIP = LocalIP, PublicIP = PublicIP, Name = Name });
+                    Temp.Clients[desktop.PublicIP].Add(desktop.LocalIP, new Client.DesktopInfo { LocalIP = desktop.LocalIP, PublicIP = desktop.PublicIP, Name = desktop.Name });
                 }
             }
             else
             {
-                Temp.Clients.Add(PublicIP, new Dictionary<string, Client.DesktopInfo>());
-                Temp.Clients[PublicIP].Add(LocalIP, new Client.DesktopInfo { LocalIP = LocalIP, PublicIP = PublicIP, Name = Name });
+                Temp.Clients.Add(desktop.PublicIP, new Dictionary<string, Client.DesktopInfo>());
+                Temp.Clients[desktop.PublicIP].Add(desktop.LocalIP, new Client.DesktopInfo { LocalIP = desktop.LocalIP, PublicIP = desktop.PublicIP, Name = desktop.Name });
             }
-            return Ok("done");
+            return Ok();
         }
 
         //Remove client
         [HttpDelete]
-        public IActionResult Delete(string PublicIP, string LocalIP)
+        public IActionResult Delete(Client.DesktopInfo desktop)
         {
-            if (Temp.Clients.ContainsKey(PublicIP))
+            if (Temp.Clients.ContainsKey(desktop.PublicIP))
             {
-                if (Temp.Clients[PublicIP].ContainsKey(LocalIP))
+                if (Temp.Clients[desktop.PublicIP].ContainsKey(desktop.LocalIP))
                 {
-                    Temp.Clients[PublicIP].Remove(LocalIP);
+                    Temp.Clients[desktop.PublicIP].Remove(desktop.LocalIP);
                 }
             }
             return Ok("Remove Client Test");
