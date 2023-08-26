@@ -3,31 +3,31 @@
 @code {
     [Inject] protected ToastService ToastService { get; set; }
     [Inject] protected PreloadService PreloadService { get; set; }
+
     private Modal mBpJSON { get; set; } = default!;
     private async Task OnShowBpClick()
     {
-        try
-        {
-            PreloadService.Show(SpinnerColor.Success);
-
-            mBpJSON.IsVerticallyCentered = true;
-            mBpJSON.ModalType = ModalType.Dark;
-            mBpJSON.Size = ModalSize.ExtraLarge;
-            await mBpJSON.ShowAsync();
-        }
-        catch (Exception ex)
-        {
-            ToastService.Notify(new(ToastType.Danger, $"Ошибка: {ex}."));
-        }
-        finally
-        {
-            PreloadService.Hide();
-        }
-        
+        mBpJSON.IsVerticallyCentered = true;
+        mBpJSON.ModalType = ModalType.Success;
+        mBpJSON.Size = ModalSize.ExtraLarge;
+        await mBpJSON.ShowAsync();
     }
     private async Task OnHideBpClick()
     {
         await mBpJSON.HideAsync();
+    }
+
+    private Modal mBpPreview { get; set; }
+    private async Task OnShowBpPreviewClick()
+    {
+        mBpPreview.IsVerticallyCentered = true;
+        mBpPreview.ModalType = ModalType.Info;
+        mBpPreview.Size = ModalSize.ExtraLarge;
+        await mBpPreview.ShowAsync();
+    }
+    private async Task OnHideBpPreviewClick()
+    {
+        await mBpPreview.HideAsync();
     }
 
     private string blueprintString { get; set; }
@@ -90,11 +90,12 @@
                     <h4 class="card-title">Просмотр чертежей онлайн</h4>
                     <h6 class="text-muted card-subtitle mb-2">Вставьте строку чертежа для расшифровки и просмотра содержимого:</h6>
                     <div class="text-center mb-3">
-                        <textarea class="form-control form-control-lg w-100" rows="1" @bind="blueprintString" type="text" />
+                        <textarea class="form-control form-control-lg w-100" rows="3" @bind="blueprintString" type="text" />
                     </div>
                     <div class="btn-group" role="group">
                         <button class="btn btn-warning btn-sm" type="button" @onclick="DecryptBP">Расшифровать</button>
                         <button class="btn btn-success btn-sm" type="button" @onclick="OnShowBpClick">JSON</button>
+                        <button class="btn btn-info btn-sm" type="button" @onclick="OnShowBpPreviewClick">Просмотр</button>
                     </div>
                     <div class="btn-group" role="group">
                         <button class="btn btn-primary btn-sm" type="button" disabled>Редактировать</button>
@@ -121,9 +122,18 @@
 
 </div>
 
-<Modal @ref="mBpJSON" Title="Blueprint JSON">
+<Modal @ref="mBpJSON" Title="JSON">
     <BodyTemplate>
         <textarea class="w-100" rows="10" @bind="blueprintJSON"></textarea>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Danger" @onclick="EncryptBP">Зашифровать</Button>
+    </FooterTemplate>
+</Modal>
+
+<Modal @ref="mBpPreview" Title="Просмотр">
+    <BodyTemplate>
+        Временно недоступно
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Danger" @onclick="EncryptBP">Зашифровать</Button>
