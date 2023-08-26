@@ -10,21 +10,7 @@
              DataProvider="SidebarDataProvider" />
 
     <main>
-        <nav class="navbar bg-body-tertiary">
-            <div class="container-fluid">
-                <a class="navbar-brand">Состояние клиента: недоступно в данной версии</a>
-                <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
-            </div>
-        </nav>
-        @*<div class="bb-top-row px-4 d-flex justify-content-end">
-            <a href="/about" target="_blank"><Icon Name="IconName.InfoCircle" /> О приложении</a>
-        </div>*@
-
-        <article class="content px-4">
-            <div class="py-2">
-                @Body
-            </div>
-        </article>
+        @Body
     </main>
 
 </div>
@@ -53,14 +39,14 @@
 
             new NavItem { Id = "2", IconName = IconName.Box2, Text = "Моды" },
             new NavItem { Id = "21", Href = "/Mods/Download", IconName = IconName.Download, Text = "Скачать", ParentId="2" },
-            new NavItem { Id = "22", Href = "/Mods/Upload", IconName = IconName.CloudUpload, Text = "Загрузить", ParentId="2" },
+            //new NavItem { Id = "22", Href = "/Mods/Upload", IconName = IconName.CloudUpload, Text = "Загрузить", ParentId="2" },
 
             new NavItem { Id = "3", IconName = IconName.Rocket, Text = "Игра" },
-            new NavItem { Id = "31", Href = "/Game/Download", IconName = IconName.Download, Text = "Скачать", ParentId="3" },
+            //new NavItem { Id = "31", Href = "/Game/Download", IconName = IconName.Download, Text = "Скачать", ParentId="3" },
 
             new NavItem { Id = "4", IconName = IconName.Rulers, Text = "Чертежи" },
-            new NavItem { Id = "41", Href = "/Blueprints/Download", IconName = IconName.Download, Text = "Скачать", ParentId="4" },
-            new NavItem { Id = "42", Href = "/Blueprints/Upload", IconName = IconName.CloudUpload, Text = "Загрузить", ParentId="4" },
+            //new NavItem { Id = "41", Href = "/Blueprints/Download", IconName = IconName.Download, Text = "Скачать", ParentId="4" },
+            //new NavItem { Id = "42", Href = "/Blueprints/Upload", IconName = IconName.CloudUpload, Text = "Загрузить", ParentId="4" },
             new NavItem { Id = "43", Href = "/Blueprints/Manage", IconName = IconName.Toggles, Text = "Управление", ParentId="4" },
         };
 

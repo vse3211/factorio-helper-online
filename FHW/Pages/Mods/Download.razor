@@ -3,6 +3,13 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
+<nav class="navbar bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand">Состояние клиента: недоступно в данной версии</a>
+        <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
+    </div>
+</nav>
+
 <PageTitle>Скачать моды</PageTitle>
 
 @code {
@@ -210,7 +217,7 @@
                     </div>
                     <br />
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-md-8">
                             <h3>@selectedMod?.Title</h3>
                             <br>
                             <dl class="row">
@@ -279,22 +286,21 @@
                                 </dl>
                             }
                         </div>
-                        @if (!String.IsNullOrWhiteSpace(selectedVersion) && !String.IsNullOrWhiteSpace(selectedModInfo.Thumbnail))
-                        {
-                            <div class="col-4">
+                        <div class="col-md-4 p-3 text-center">
+                            @if (!String.IsNullOrWhiteSpace(selectedVersion) && !String.IsNullOrWhiteSpace(selectedModInfo.Thumbnail))
+                            {
                                 <div class="float-end">
-                                    <img class="rounded" src="@($"https://assets-mod.factorio.com{selectedModInfo.Thumbnail}")" style="width: 200px; height:200px" />
+                                    <img class="rounded-4" src="@($"https://assets-mod.factorio.com{selectedModInfo.Thumbnail}")" style="width: 200px; height:200px" />
                                 </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="col-4">
+                            }
+                            else
+                            {
                                 <div class="float-end">
                                     <Icon class="rounded" Name="IconName.GearFill" style="font-size: 200px!important; color:darkorange" />
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
+                        
                     </div>
                 }
 

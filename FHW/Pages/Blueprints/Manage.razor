@@ -1,6 +1,56 @@
 ﻿@page "/Blueprints/Manage"
-<h3>Manage</h3>
 
 @code {
+    private bool getJSON { get; set; } = false;
 
+    private string blueprintString { get; set; }
+    private string blueprintJSON { get; set; }
+    private Factorio.Blueprint.Book blueprintBook { get; set; }
+
+    
 }
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mt-3 mb-3">
+                <div class="card-body">
+                    <h4 class="card-title">Просмотр чертежей онлайн</h4>
+                    <h6 class="text-muted card-subtitle mb-2">Вставьте строку чертежа для расшифровки и просмотра содержимого:</h6>
+                    <div class="text-center mb-3">
+                        <input @bind-value="blueprintString" class="form-control form-control-lg" type="text" />
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-warning btn-sm" type="button" @onclick="() => {blueprintJSON = Factorio.Tools.Blueprint.Decode(blueprintString);getJSON = true;}">Расшифровать</button>
+                        @if (getJSON) {<button class="btn btn-danger btn-sm" type="button" @onclick="() => {blueprintString = Factorio.Tools.Blueprint.Encode(blueprintJSON);}">Зашифровать</button>}
+                        <button class="btn btn-success btn-sm" type="button" @onclick="() => {getJSON = !getJSON;}">Получить JSON</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary btn-sm" type="button" disabled>Редактировать</button>
+                        <button class="btn btn-dark btn-sm" type="button" disabled>Скопировать в клиент</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<div class="row">
+        <div class="col">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Item</th>
+                        <td>100</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>-->
+    @if (getJSON)
+    {
+        <div class="card mb-3">
+            <textarea rows="15" cols="200" @bind="blueprintJSON"></textarea>
+        </div>
+    }
+
+</div>
+
