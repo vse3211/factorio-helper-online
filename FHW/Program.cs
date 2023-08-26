@@ -8,12 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor().AddHubOptions(options => {
+    options.MaximumReceiveMessageSize = null;
+});
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
-Temp.LoadModsList();
+//Temp.LoadModsList();
 
 var app = builder.Build();
 

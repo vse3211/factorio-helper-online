@@ -134,6 +134,7 @@ namespace Factorio.Tools
 
         public static string Encode(string json)
         {
+            if (string.IsNullOrWhiteSpace(json)) return "";
             var enc = new UTF8Encoding();
             return "0" + Convert.ToBase64String(Compress(enc.GetBytes(json)));
         }
