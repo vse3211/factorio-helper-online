@@ -13,7 +13,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
-//Temp.LoadModsList();
+Temp.LoadModsList();
 
 var app = builder.Build();
 
