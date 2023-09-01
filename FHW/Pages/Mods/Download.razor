@@ -21,7 +21,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+        try
+        {
+            ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+        }
+        catch
+        {
+            ToastService.Notify(new(ToastType.Warning, $"Ошибка: не удалось получить внешний IP"));
+        }
     }
 
 
