@@ -1,11 +1,12 @@
 ﻿@page "/Mods/Download"
-@using System.Text.RegularExpressions;
+@using System.Text.RegularExpressions
+@using FHW.Data
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <nav class="navbar bg-body-tertiary">
     <div class="container-fluid">
-        <Button @onclick="() => { ClientMode = !ClientMode; }" Color="ButtonColor.None" Loading="ClientIP is null" Disabled="ClientIP is null" LoadingText="Получаю IP...">@ClientModeButton</Button>
+        <Button @onclick="ChangeClientState" Color="ButtonColor.None" Loading="ClientIP is null" Disabled="ClientIP is null" LoadingText="Получаю IP...">@ClientModeButton</Button>
         <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
     </div>
 </nav>
@@ -15,26 +16,36 @@
 @code {
     [Inject] protected ToastService ToastService { get; set; }
     public string? ClientIP { get; set; } = null;
+    public Client.DesktopInfo? SelectedClient { get; set; } = null;
     public bool ClientMode { get; set; } = false;
     public string ClientModeButton { get { return "Состояние клиента: " + (ClientMode ? "Клиент активен" : "Загрузка в браузере"); } }
 
-    [Parameter]
-    public string ClientStatus { get; set; }
+    //[Parameter]
+    //public string ClientStatus { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            while (ClientIP is null)
-            {
-                ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
-            }
 
-        }
-        catch (Exception ex)
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            JSRuntime.InvokeAsync<string>("console.log", ex.Message);
+            try
+            {
+                while (ClientIP is null)
+                {
+                    ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
 
@@ -133,26 +144,29 @@
 
     private void OnAutoCompleteChanged(ModsList.Result mod, bool selectVersion = true)
     {
-        selectedModInfo = null;
-        if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+        if (mod != null)
         {
-            Data.Temp.LastUpdateMods.Add(mod.Name,
-                new Mod.Info
-                {
-                    Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
-                    LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
-                });
-        }
-        if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
-        {
-            Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
-            Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
-        }
+            selectedModInfo = null;
+            if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+            {
+                Data.Temp.LastUpdateMods.Add(mod.Name,
+                    new Mod.Info
+                    {
+                        Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
+                        LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
+                    });
+            }
+            if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
+            {
+                Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
+                Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+            }
 
-        selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
-        selectedMod = mod;
-        BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
-        if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
+            selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
+            selectedMod = mod;
+            BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
+            if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
+        }
     }
 
     private void ClearDependencies()
@@ -190,6 +204,28 @@
         else
         {
             ToastService.Notify(new(ToastType.Danger, $"Ошибка: мод не найден"));
+        }
+    }
+
+    private void ChangeClientState()
+    {
+
+        ClientMode = !ClientMode;
+        if (ClientMode)
+        {
+            if (Temp.Clients.ContainsKey(ClientIP))
+            {
+                if (Temp.Clients[ClientIP].Count > 0)
+                {
+                    SelectedClient = Temp.Clients[ClientIP].Last().Value;
+                    ToastService.Notify(new(ToastType.Success, $"Найден клиент {SelectedClient.Name} по адресу {SelectedClient.LocalIP} " +
+                        $"Доступно клиентов: {Temp.Clients[ClientIP].Count}"));
+                    return;
+                }
+            }
+            ClientMode = false;
+            ToastService.Notify(new(ToastType.Info, $"Клиенты не найдены или отсутствуют в локальной сети! " +
+                $"Попробуйте перезапустить клиент, если он был запущен"));
         }
     }
 }
