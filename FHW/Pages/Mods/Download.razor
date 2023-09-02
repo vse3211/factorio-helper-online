@@ -5,7 +5,7 @@
 
 <nav class="navbar bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand">Состояние клиента [@ClientIP]: недоступно в данной версии</a>
+        <Button @onclick="() => { ClientMode = !ClientMode; }" Color="ButtonColor.None" Loading="ClientIP is null" Disabled="ClientIP is null" LoadingText="Получаю IP...">@ClientModeButton</Button>
         <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
     </div>
 </nav>
@@ -14,7 +14,9 @@
 
 @code {
     [Inject] protected ToastService ToastService { get; set; }
-    public string? ClientIP { get; set; }
+    public string? ClientIP { get; set; } = null;
+    public bool ClientMode { get { return false; } set { } }
+    public string ClientModeButton { get { return "Состояние клиента: " + (ClientMode ? "Клиент активен" : "Загрузка в браузере"); } }
 
     [Parameter]
     public string ClientStatus { get; set; }
@@ -23,11 +25,15 @@
     {
         try
         {
-            ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+            while (ClientIP is null)
+            {
+                ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+            }
+
         }
-        catch
+        catch (Exception ex)
         {
-            ToastService.Notify(new(ToastType.Warning, $"Ошибка: не удалось получить внешний IP"));
+            JSRuntime.InvokeAsync<string>("console.log", ex.Message);
         }
     }
 
@@ -69,7 +75,13 @@
             if (!String.IsNullOrWhiteSpace(value))
             {
                 ClearDependencies();
-                foreach (var dep in selectedModInfo.Releases.ToList().Find(x => x.Version == value).InfoJson.Dependencies)
+                var _mod = selectedModInfo.Releases.ToList().Find(x => x.Version == value);
+                if (_mod is null)
+                {
+                    _mod = selectedModInfo.Releases.ToList().Last();
+                    value = _mod.Version;
+                }
+                foreach (var dep in _mod.InfoJson.Dependencies)
                 {
                     string pattern = @"^((?:)|(?:\?)|(?:\(\?\))|(?:!)|(?:~))(?:\s?)([%\w\s-]+)(?:\s{0,})(?:((?:=>)|(?:==)|(?:=)|(?:<=)|(?:>=)|(?:<)|(?:>)|(?:))(?:\s{0,})((\d+\.\d+\.\d+)|(\d+\.\d+)))?$";
                     Match m = Regex.Match(dep, pattern, RegexOptions.IgnoreCase);
@@ -152,8 +164,17 @@
 
     private void DownloadMod()
     {
-        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        if (ClientMode)
+        {
+            JSRuntime.InvokeAsync<string>("setLocalIP", "192.168.0.1");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        }
+
         //JSRuntime.InvokeAsync<string>("sendRequestToClient");
+
     }
 
     private void FindModByName(string Name, string? Version = null)
@@ -307,7 +328,7 @@
                                 </div>
                             }
                         </div>
-                        
+
                     </div>
                 }
 
