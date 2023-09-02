@@ -64,9 +64,17 @@
         }
     </script>
     <script>
+        var localip
+        function setLocalIP(lip) {
+            localip = lip
+            console.log("LIP is: " + lip)
+            console.log("LocalIP is: " + localip)
+            console.log("PublicIP is: " + ip)
+        }
+
         function sendRequestToClient() {
             let xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://192.168.11.69:9955");
+            xhr.open("POST", "http://" + localip + ":9955");
             xhr.setRequestHeader("Accept", "application/json");
             xhr.setRequestHeader("Content-Type", "application/json");
 
