@@ -15,7 +15,7 @@
 @code {
     [Inject] protected ToastService ToastService { get; set; }
     public string? ClientIP { get; set; } = null;
-    public bool ClientMode { get { return false; } set { } }
+    public bool ClientMode { get; set; } = false;
     public string ClientModeButton { get { return "Состояние клиента: " + (ClientMode ? "Клиент активен" : "Загрузка в браузере"); } }
 
     [Parameter]
@@ -215,33 +215,59 @@
                 </div>
                 @if (selectedMod != null && selectedModInfo != null)
                 {
-                    <div class="row">
-                        <div class="input-group p-0 mt-1" role="group" aria-label="Mod controls">
-                            <select class="form-control" id="versionSelect" @bind="selectedVersion">
+                    <div class="row mt-1">
+                        <div class="col p-0">
+                            <select class="form-control mb-1" id="versionSelect" @bind="selectedVersion">
                                 <option />
                                 @foreach (var release in selectedModInfo?.Releases.OrderByDescending(ver => ver.Version))
                                 {
                                     <option value="@release.Version">@release.Version</option>
                                 }
                             </select>
-
-                            @if (!String.IsNullOrWhiteSpace(selectedVersion))
-                            {
-                                <button @onclick="DownloadMod" type="button" class="btn btn-warning">
-                                    Download
-                                </button>
-                                <button type="button" class="btn btn-danger" disabled>
-                                    Remove
-                                </button>
-                                <button type="button" class="btn btn-secondary" disabled>
-                                    Open folder
-                                </button>
-                                <button type="button" class="btn btn-success" disabled>
-                                    Launch game
-                                </button>
-                            }
-
                         </div>
+
+                        @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                        {
+                            <div class="col-auto p-0">
+                                <Dropdown Split="true" Class="ps-1 pb-sm-1">
+                                    <DropdownActionButton Color="ButtonColor.Warning" @onclick="DownloadMod">Скачать мод</DropdownActionButton>
+                                    <DropdownToggleButton Color="ButtonColor.Warning" />
+                                    <DropdownMenu>
+                                        <DropdownItem Type="ButtonType.Link">Скачать с засисимостями</DropdownItem>
+                                        <DropdownItem Type="ButtonType.Link">Скачать засисимости</DropdownItem>
+                                        <DropdownItem Type="ButtonType.Link">Скачать необязательное</DropdownItem>
+                                        @if (ClientMode)
+                                        {
+                                            <DropdownItem Type="ButtonType.Link">Скачать и запустить</DropdownItem>
+                                        }
+                                    </DropdownMenu>
+                                </Dropdown>
+                                @if (ClientMode)
+                                {
+                                    <Dropdown Class="ps-1 pb-sm-1">
+                                        <DropdownToggleButton Color="ButtonColor.Danger">Удалить</DropdownToggleButton>
+                                        <DropdownMenu>
+                                            <DropdownItem Type="ButtonType.Link">Удалить мод</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Удалить зависимости</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Удалить несовместимое</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Отключить мод</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Отключить зависимости</DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                }
+                            </div>
+                            <div class="col-auto p-0">
+                                @if (ClientMode)
+                                {
+                                    <button class="btn btn-secondary ms-0 ms-lg-1 mb-0 mb-lg-1" type="button">
+                                        Найти в папке
+                                    </button>
+                                    <button class="btn btn-success ms-0 mb-0 mb-lg-1" type="button">
+                                        Запустить игру
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
                     <br />
                     <div class="row">
