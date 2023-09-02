@@ -5,7 +5,7 @@
 
 <nav class="navbar bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand">Состояние клиента: недоступно в данной версии</a>
+        <a class="navbar-brand">Состояние клиента [@ClientIP]: недоступно в данной версии</a>
         <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
     </div>
 </nav>
@@ -41,7 +41,7 @@
     public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
 
     private ModsList.Result? _selectedMod;
-    public ModsList.Result? selectedMod 
+    public ModsList.Result? selectedMod
     {
         get
         {
@@ -126,10 +126,10 @@
         {
             Data.Temp.LastUpdateMods.Add(mod.Name,
                 new Mod.Info
-                    {
-                        Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
-                        LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
-                    });
+                {
+                    Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
+                    LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
+                });
         }
         if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
         {
@@ -152,8 +152,8 @@
 
     private void DownloadMod()
     {
-        //NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
-        JSRuntime.InvokeAsync<string>("sendRequestToClient");
+        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        //JSRuntime.InvokeAsync<string>("sendRequestToClient");
     }
 
     private void FindModByName(string Name, string? Version = null)
