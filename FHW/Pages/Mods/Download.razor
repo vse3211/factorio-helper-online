@@ -1,11 +1,12 @@
 ﻿@page "/Mods/Download"
-@using System.Text.RegularExpressions;
+@using System.Text.RegularExpressions
+@using FHW.Data
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <nav class="navbar bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand">Состояние клиента: недоступно в данной версии</a>
+        <Button @onclick="ChangeClientState" Color="ButtonColor.None" Loading="ClientIP is null" Disabled="ClientIP is null" LoadingText="Получаю IP...">@ClientModeButton</Button>
         <a class="d-flex" href="/about" target="_blank"><Icon Name="IconName.InfoCircle" />&nbsp;О приложении</a>
     </div>
 </nav>
@@ -14,14 +15,37 @@
 
 @code {
     [Inject] protected ToastService ToastService { get; set; }
-    public string? ClientIP { get; set; }
+    public string? ClientIP { get; set; } = null;
+    public Client.DesktopInfo? SelectedClient { get; set; } = null;
+    public bool ClientMode { get; set; } = false;
+    public string ClientModeButton { get { return "Состояние клиента: " + (ClientMode ? "Клиент активен" : "Загрузка в браузере"); } }
 
-    [Parameter]
-    public string ClientStatus { get; set; }
+    //[Parameter]
+    //public string ClientStatus { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                while (ClientIP is null)
+                {
+                    ClientIP = await JSRuntime.InvokeAsync<string>("getClientIP");
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
 
@@ -34,7 +58,7 @@
     public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
 
     private ModsList.Result? _selectedMod;
-    public ModsList.Result? selectedMod 
+    public ModsList.Result? selectedMod
     {
         get
         {
@@ -62,7 +86,13 @@
             if (!String.IsNullOrWhiteSpace(value))
             {
                 ClearDependencies();
-                foreach (var dep in selectedModInfo.Releases.ToList().Find(x => x.Version == value).InfoJson.Dependencies)
+                var _mod = selectedModInfo.Releases.ToList().Find(x => x.Version == value);
+                if (_mod is null)
+                {
+                    _mod = selectedModInfo.Releases.ToList().Last();
+                    value = _mod.Version;
+                }
+                foreach (var dep in _mod.InfoJson.Dependencies)
                 {
                     string pattern = @"^((?:)|(?:\?)|(?:\(\?\))|(?:!)|(?:~))(?:\s?)([%\w\s-]+)(?:\s{0,})(?:((?:=>)|(?:==)|(?:=)|(?:<=)|(?:>=)|(?:<)|(?:>)|(?:))(?:\s{0,})((\d+\.\d+\.\d+)|(\d+\.\d+)))?$";
                     Match m = Regex.Match(dep, pattern, RegexOptions.IgnoreCase);
@@ -114,26 +144,29 @@
 
     private void OnAutoCompleteChanged(ModsList.Result mod, bool selectVersion = true)
     {
-        selectedModInfo = null;
-        if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+        if (mod != null)
         {
-            Data.Temp.LastUpdateMods.Add(mod.Name,
-                new Mod.Info
+            selectedModInfo = null;
+            if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+            {
+                Data.Temp.LastUpdateMods.Add(mod.Name,
+                    new Mod.Info
                     {
                         Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
                         LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds()
                     });
-        }
-        if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
-        {
-            Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
-            Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
-        }
+            }
+            if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
+            {
+                Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
+                Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+            }
 
-        selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
-        selectedMod = mod;
-        BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
-        if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
+            selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
+            selectedMod = mod;
+            BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
+            if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
+        }
     }
 
     private void ClearDependencies()
@@ -145,8 +178,17 @@
 
     private void DownloadMod()
     {
-        //NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
-        JSRuntime.InvokeAsync<string>("sendRequestToClient");
+        if (ClientMode)
+        {
+            JSRuntime.InvokeAsync<string>("setLocalIP", "192.168.0.1");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        }
+
+        //JSRuntime.InvokeAsync<string>("sendRequestToClient");
+
     }
 
     private void FindModByName(string Name, string? Version = null)
@@ -162,6 +204,28 @@
         else
         {
             ToastService.Notify(new(ToastType.Danger, $"Ошибка: мод не найден"));
+        }
+    }
+
+    private void ChangeClientState()
+    {
+
+        ClientMode = !ClientMode;
+        if (ClientMode)
+        {
+            if (Temp.Clients.ContainsKey(ClientIP))
+            {
+                if (Temp.Clients[ClientIP].Count > 0)
+                {
+                    SelectedClient = Temp.Clients[ClientIP].Last().Value;
+                    ToastService.Notify(new(ToastType.Success, $"Найден клиент {SelectedClient.Name} по адресу {SelectedClient.LocalIP} " +
+                        $"Доступно клиентов: {Temp.Clients[ClientIP].Count}"));
+                    return;
+                }
+            }
+            ClientMode = false;
+            ToastService.Notify(new(ToastType.Info, $"Клиенты не найдены или отсутствуют в локальной сети! " +
+                $"Попробуйте перезапустить клиент, если он был запущен"));
         }
     }
 }
@@ -187,33 +251,59 @@
                 </div>
                 @if (selectedMod != null && selectedModInfo != null)
                 {
-                    <div class="row">
-                        <div class="input-group p-0 mt-1" role="group" aria-label="Mod controls">
-                            <select class="form-control" id="versionSelect" @bind="selectedVersion">
+                    <div class="row mt-1">
+                        <div class="col p-0">
+                            <select class="form-control mb-1" id="versionSelect" @bind="selectedVersion">
                                 <option />
                                 @foreach (var release in selectedModInfo?.Releases.OrderByDescending(ver => ver.Version))
                                 {
                                     <option value="@release.Version">@release.Version</option>
                                 }
                             </select>
-
-                            @if (!String.IsNullOrWhiteSpace(selectedVersion))
-                            {
-                                <button @onclick="DownloadMod" type="button" class="btn btn-warning">
-                                    Download
-                                </button>
-                                <button type="button" class="btn btn-danger" disabled>
-                                    Remove
-                                </button>
-                                <button type="button" class="btn btn-secondary" disabled>
-                                    Open folder
-                                </button>
-                                <button type="button" class="btn btn-success" disabled>
-                                    Launch game
-                                </button>
-                            }
-
                         </div>
+
+                        @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                        {
+                            <div class="col-auto p-0">
+                                <Dropdown Split="true" Class="ps-1 pb-sm-1">
+                                    <DropdownActionButton Color="ButtonColor.Warning" @onclick="DownloadMod">Скачать мод</DropdownActionButton>
+                                    <DropdownToggleButton Color="ButtonColor.Warning" />
+                                    <DropdownMenu>
+                                        <DropdownItem Type="ButtonType.Link">Скачать с засисимостями</DropdownItem>
+                                        <DropdownItem Type="ButtonType.Link">Скачать засисимости</DropdownItem>
+                                        <DropdownItem Type="ButtonType.Link">Скачать необязательное</DropdownItem>
+                                        @if (ClientMode)
+                                        {
+                                            <DropdownItem Type="ButtonType.Link">Скачать и запустить</DropdownItem>
+                                        }
+                                    </DropdownMenu>
+                                </Dropdown>
+                                @if (ClientMode)
+                                {
+                                    <Dropdown Class="ps-1 pb-sm-1">
+                                        <DropdownToggleButton Color="ButtonColor.Danger">Удалить</DropdownToggleButton>
+                                        <DropdownMenu>
+                                            <DropdownItem Type="ButtonType.Link">Удалить мод</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Удалить зависимости</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Удалить несовместимое</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Отключить мод</DropdownItem>
+                                            <DropdownItem Type="ButtonType.Link">Отключить зависимости</DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                }
+                            </div>
+                            <div class="col-auto p-0">
+                                @if (ClientMode)
+                                {
+                                    <button class="btn btn-secondary ms-0 ms-lg-1 mb-0 mb-lg-1" type="button">
+                                        Найти в папке
+                                    </button>
+                                    <button class="btn btn-success ms-0 mb-0 mb-lg-1" type="button">
+                                        Запустить игру
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
                     <br />
                     <div class="row">
@@ -300,7 +390,7 @@
                                 </div>
                             }
                         </div>
-                        
+
                     </div>
                 }
 
