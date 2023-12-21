@@ -11,7 +11,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor().AddHubOptions(options => {
     options.MaximumReceiveMessageSize = null;
 });
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
