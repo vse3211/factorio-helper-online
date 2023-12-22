@@ -8,6 +8,10 @@
     Download File From Stream
 </button>
 
+<button @onclick="DownloadFileFromURL">
+    Download File From URL
+</button>
+
 @code {
     private Stream GetFileStream()
     {
@@ -25,5 +29,12 @@
         using var streamRef = new DotNetStreamReference(stream: fileStream);
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+
+    private async Task DownloadFileFromURL()
+    {
+        var fileName = "quote.txt";
+        var fileURL = "/files/quote.txt";
+        await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
     }
 }
