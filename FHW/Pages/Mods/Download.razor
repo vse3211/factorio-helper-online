@@ -13,7 +13,7 @@
 
 <PageTitle>Скачать моды</PageTitle>
 
-@code {
+    @code {
     [Inject] protected ToastService ToastService { get; set; }
     public string? ClientIP { get; set; } = null;
     public Client.DesktopInfo? SelectedClient { get; set; } = null;
@@ -42,6 +42,7 @@
             }
             catch (Exception ex)
             {
+                ToastService.Notify(new(ToastType.Danger, $"Ошибка: не удалось найти клиент"));
                 Console.WriteLine(ex);
             }
         }
@@ -184,7 +185,10 @@
         }
         else
         {
-            NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+            FHW.Core.Downloader.AddQueue(new Core.Downloader.Download { Uri = $@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip",
+            FileName = $"{selectedModInfo.Name}_{selectedVersion}.zip",
+            Title = $"Mod: {selectedModInfo.Name} {selectedVersion}" });
+            //NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
         }
 
         //JSRuntime.InvokeAsync<string>("sendRequestToClient");
@@ -230,6 +234,39 @@
     }
 }
 
+<div>
+    <button @onclick="StateHasChanged">Update</button>
+    <Card>
+        <h1>Active download</h1>
+        @if (Core.Downloader.CurrentDownload is null)
+        {
+            <p>No active download</p>
+        }
+        else
+        {
+            <h5>@Core.Downloader.CurrentDownload.Title</h5>
+            <Progress>
+                <ProgressBar Width="Core.Downloader.CurrentDownload.DownloadState" Label="@Core.Downloader.CurrentDownload.IsCompleted.ToString()" />
+            </Progress>
+        }
+    </Card>
+    <Card>
+        <h1>Downloads queue:</h1>
+        @foreach(var d in Core.Downloader.DownloadsQueue)
+        {
+            <p>@d.Title</p>
+            <hr/>
+        }
+    </Card>
+    <Card>
+        <h1>Downloads:</h1>
+        @foreach (var d in Core.Downloader.Downloads)
+        {
+            <p>@d.Title</p>
+            <hr />
+        }
+    </Card>
+</div>
 
 <div class="p-3">
     <div class="card">
@@ -269,7 +306,7 @@
                                     <DropdownActionButton Color="ButtonColor.Warning" @onclick="DownloadMod">Скачать мод</DropdownActionButton>
                                     <DropdownToggleButton Color="ButtonColor.Warning" />
                                     <DropdownMenu>
-                                        <DropdownItem Type="ButtonType.Link">Скачать с засисимостями</DropdownItem>
+                                        <DropdownItem Type="ButtonType.Link" @onclick="DownloadMod">Скачать с засисимостями</DropdownItem>
                                         @if (ClientMode)
                                         {
                                             <DropdownItem Type="ButtonType.Link">Скачать и запустить</DropdownItem>

@@ -3,6 +3,7 @@ using FHW.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,14 @@ app.UseHttpsRedirection();
 app.UseMvcWithDefaultRoute();
 
 app.UseStaticFiles();
+if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Files")))
+    Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Files"));
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Files")),
+    RequestPath = "/Files"
+});
 
 app.UseRouting();
 
