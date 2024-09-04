@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["FHW/FHW.csproj", "FHW/"]
+COPY FHW/aspnetapp.pfx /https/aspnetapp.pfx
 RUN dotnet restore "FHW/FHW.csproj"
 COPY . .
 WORKDIR "/src/FHW"
