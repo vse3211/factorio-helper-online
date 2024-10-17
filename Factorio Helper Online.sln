@@ -7,6 +7,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHW", "FHW\FHW.csproj", "{4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FHC", "FHC\FHC.csproj", "{A1CD6CD7-FDE0-4F6E-83F1-F3C1570ED5BC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Factorio Helper 2025", "Factorio Helper 2025", "{DD226D07-447F-4B8D-A1ED-825F53F20F66}"
+	ProjectSection(SolutionItems) = preProject
+		Factorio Helper 2025\README.MD = Factorio Helper 2025\README.MD
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHW", "Factorio Helper 2025\FHW\FHW.csproj", "{581F1A5B-11FC-4B5E-8FBF-D9B693195120}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36EC9205-4F9F-423D-BE32-D9BFAD9E30E8}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,11 +33,18 @@ Global
 		{A1CD6CD7-FDE0-4F6E-83F1-F3C1570ED5BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1CD6CD7-FDE0-4F6E-83F1-F3C1570ED5BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1CD6CD7-FDE0-4F6E-83F1-F3C1570ED5BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD91B2AA-ECCB-4C17-BD92-7CA305946DC1}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120} = {DD226D07-447F-4B8D-A1ED-825F53F20F66}
 	EndGlobalSection
 EndGlobal

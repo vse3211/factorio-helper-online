@@ -1,0 +1,6 @@
+﻿services:
+  fhw:
+    image: fhw
+    build:
+      context: .
+      dockerfile: Factorio Helper 2025/FHW/Dockerfile
