@@ -54,9 +54,9 @@
 
     private string _mod;
     public string BaseDependency { get; set; } = "";
-    public List<Mod.Dependency> MainDependencies { get; set; } = new List<Mod.Dependency>();
-    public List<Mod.Dependency> AdditionalDependencies { get; set; } = new List<Mod.Dependency>();
-    public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
+    public List<Mod.Dependency> MainDependencies { get; set; } = new();
+    public List<Mod.Dependency> AdditionalDependencies { get; set; } = new();
+    public List<Mod.Dependency> BadDependencies { get; set; } = new();
 
     private ModsList.Result? _selectedMod;
     public ModsList.Result? selectedMod
