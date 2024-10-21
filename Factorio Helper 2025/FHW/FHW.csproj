@@ -26,4 +26,10 @@
       <None Include="Classes\Factorio.Blueprint.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\Blueprints\Download.razor" />
+      <AdditionalFiles Include="Components\Pages\Blueprints\Manage.razor" />
+      <AdditionalFiles Include="Components\Pages\Blueprints\Upload.razor" />
+    </ItemGroup>
+
 </Project>
