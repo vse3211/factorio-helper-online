@@ -1,3 +1,4 @@
 # Factorio Helper Online
 
-Web mod manager for Factorio
+Factorio Web mod manager
+Search and download any mods!
