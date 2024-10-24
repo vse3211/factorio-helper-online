@@ -1,0 +1,47 @@
+﻿@page "/Blueprints/Manage"
+@inject IToastService ToastService
+
+<h1>404, вернитесь позднее...</h1>
+
+@code
+{
+    private string blueprintString { get; set; }
+    private string blueprintJSON { get; set; }
+    //private Factorio.Blueprint.Book blueprintBook { get; set; }
+
+    private async Task DecryptBP()
+    {
+        try
+        {
+
+            await Task.Delay(5000);
+            blueprintJSON = Factorio.Tools.Blueprint.Decode(blueprintString);
+            await Task.Delay(500);
+            if (string.IsNullOrWhiteSpace(blueprintString)) ToastService.ShowError($"Cтрока чертежа пустая!");
+            else ToastService.ShowSuccess("Расшифровка выполнена");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Ошибка: {ex}");
+        }
+        
+    }
+
+    private async Task EncryptBP()
+    {
+        try
+        {
+
+            await Task.Delay(5000);
+            blueprintString = Factorio.Tools.Blueprint.Encode(blueprintJSON);
+            await Task.Delay(500);
+            //
+            if (string.IsNullOrWhiteSpace(blueprintJSON)) ToastService.ShowError("JSON чертеж пустой!");
+            else ToastService.ShowSuccess("JSON зашифрован в строку чертежа");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Ошибка: {ex}");
+        }
+    }
+}

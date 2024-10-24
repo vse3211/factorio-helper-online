@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Factorio Helper 2025", "Factorio Helper 2025", "{DD226D07-447F-4B8D-A1ED-825F53F20F66}"
+	ProjectSection(SolutionItems) = preProject
+		Factorio Helper 2025\README.MD = Factorio Helper 2025\README.MD
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHW", "Factorio Helper 2025\FHW\FHW.csproj", "{581F1A5B-11FC-4B5E-8FBF-D9B693195120}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36EC9205-4F9F-423D-BE32-D9BFAD9E30E8}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD91B2AA-ECCB-4C17-BD92-7CA305946DC1}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{581F1A5B-11FC-4B5E-8FBF-D9B693195120} = {DD226D07-447F-4B8D-A1ED-825F53F20F66}
+	EndGlobalSection
+EndGlobal
