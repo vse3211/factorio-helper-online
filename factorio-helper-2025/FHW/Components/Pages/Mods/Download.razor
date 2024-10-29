@@ -127,7 +127,7 @@
                             }
                         </div>
                         <div class="col-md-4 p-3 text-center">
-                            @if (!String.IsNullOrWhiteSpace(SelectedVersion) && !String.IsNullOrWhiteSpace(SelectedModInfo.Thumbnail) && false)
+                            @if (!String.IsNullOrWhiteSpace(SelectedVersion) && !String.IsNullOrWhiteSpace(SelectedModInfo.Thumbnail))
                             {
                                 <div class="float-end">
                                     <img class="rounded-4" src="@($"https://assets-mod.factorio.com{SelectedModInfo.Thumbnail}")" style="width: 200px; height:200px" alt=""/>
