@@ -29,21 +29,29 @@ namespace FHW.Data
 
         public static void LoadModsList()
         {
+            Guid guid = Guid.NewGuid();
             try
             {
-                Console.WriteLine($"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Loading mods...");
+                Console.WriteLine($"[{guid}] {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Loading mods...");
                 ModsLoad = true;
-                ModsList.LocalMod lm = ModsList.LocalMod.FromJson(LMC.Web.GetString(@"https://mods.factorio.com/api/mods?page_size=max"));
+                ModsList.LocalMod lm =
+                    ModsList.LocalMod.FromJson(LMC.Web.GetString(@"https://mods.factorio.com/api/mods?page_size=max"));
                 MainModsList.Clear();
-                lm.Results.ToList().ForEach(item => {
-                    MainModsList.Add(item);
+                lm.Results.ToList().ForEach(item =>
+                {
+                    if (item.LatestRelease != null) MainModsList.Add(item);
                 });
                 ModsLoad = false;
             }
             catch (Exception ex)
             {
                 ModsLoadError = ex;
-                Console.WriteLine($"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Mods loading error: {ex.Message}");
+                Console.WriteLine(
+                    $"[{guid}] {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Mods loading error: {ex.Message}");
+            }
+            finally
+            {
+                Console.WriteLine($"[{guid}] {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Mods loaded!");
             }
         }
         #endregion
