@@ -8,7 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Factorio Helper 2025", "Fac
 		Factorio Helper 2025\README.MD = Factorio Helper 2025\README.MD
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHW", "Factorio Helper 2025\FHW\FHW.csproj", "{581F1A5B-11FC-4B5E-8FBF-D9B693195120}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHW", "factorio-helper-2025\FHW\FHW.csproj", "{581F1A5B-11FC-4B5E-8FBF-D9B693195120}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36EC9205-4F9F-423D-BE32-D9BFAD9E30E8}"
 	ProjectSection(SolutionItems) = preProject

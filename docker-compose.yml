@@ -3,4 +3,4 @@
     image: fhw
     build:
       context: .
-      dockerfile: Factorio Helper 2025/FHW/Dockerfile
+      dockerfile: factorio-helper-2025/FHW/Dockerfile
