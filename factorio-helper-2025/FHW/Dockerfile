@@ -13,10 +13,10 @@ RUN dotnet publish "./FHW.csproj" --no-restore -a $TARGETARCH -o /app
 
 # Этап финального образа
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
-LABEL org.opencontainers.image.source=https://github.com/vse3211/factorio-helper-online
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
+LABEL org.opencontainers.image.source="https://github.com/vse3211/factorio-helper-online"
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN apk add --no-cache icu-libs tzdata
-ENV TZ Asia/Almaty
+ENV TZ=Asia/Almaty
 
 # Открытые порты
 EXPOSE 8080
