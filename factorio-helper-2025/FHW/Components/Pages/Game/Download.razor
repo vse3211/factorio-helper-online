@@ -11,7 +11,7 @@
                     @foreach (var v in @Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/factorio"))
                     {
                         <li>
-                            <a href="./factorio/@Path.GetFileName(v)">@Path.GetFileName(v)</a>
+                            <a href="./factorio/@Path.GetFileName(v)" target="_blank">@Path.GetFileName(v)</a>
                         </li>
                     }
                 }
