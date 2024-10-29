@@ -4,11 +4,30 @@
             <h1>Скачать Factorio</h1>
         </div>
         <div class="card-body">
-            
+            Доступные файлы
+            <ul>
+                @try
+                {
+                    @foreach (var v in @Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/factorio"))
+                    {
+                        <li>
+                            <a href="./factorio/@v">@v</a>
+                        </li>
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Guid guid = Guid.NewGuid();
+                    Console.WriteLine($"[{guid}]\n{ex}\n\n");
+                    <li>
+                        Произошла ошибка! Предоставьте администратору ID ошибки: @guid.ToString()
+                    </li>
+                }
+            </ul>
         </div>
     </div>
 </div>
 
 @code {
-    
+
 }
