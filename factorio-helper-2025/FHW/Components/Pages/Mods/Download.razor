@@ -136,7 +136,7 @@
                             else
                             {
                                 <div class="float-end">
-                                    <FluentEmoji Value="@(new Emojis.Objects.Flat.Default.Gear())" Width="200px" />
+                                    <FluentEmoji Value="@(new Emojis.Objects.Flat.Default.Gear())" Width="200px"/>
                                 </div>
                             }
                         </div>
@@ -148,6 +148,7 @@
                     <div class="row">
                         @if (Mods is null || (Mods != null && Mods.Count() == 0))
                         {
+                            <FluentProgress></FluentProgress>
                             <h1>Идет загрузка списка модов... Пожалуйста, подождите!</h1>
                         }
                         else
@@ -186,23 +187,24 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        WatchDog = new(new TimerCallback(_ =>
-        {
-            if (!_isUpdating && !Data.Temp.Mods.ModsLoad)
+        if (firstRender)
+            WatchDog = new(new TimerCallback(_ =>
             {
-                _isUpdating = true;
-                if (DateTimeOffset.Now - _lastUpdated > TimeSpan.FromMinutes(5))
+                if (!_isUpdating && !Data.Temp.Mods.ModsLoad)
                 {
-                    Mods = GetMods();
-                    if (Mods is null || (Mods != null && Mods.Count() == 0)) _lastUpdated = DateTimeOffset.MinValue;
-                    _lastUpdated = DateTimeOffset.Now;
-                    _searchResults = DefaultResults();
-                    InvokeAsync(StateHasChanged);
-                }
+                    _isUpdating = true;
+                    if (DateTimeOffset.Now - _lastUpdated > TimeSpan.FromMinutes(5))
+                    {
+                        Mods = GetMods();
+                        if (Mods is null || (Mods != null && Mods.Count() == 0)) _lastUpdated = DateTimeOffset.MinValue;
+                        _lastUpdated = DateTimeOffset.Now;
+                        _searchResults = DefaultResults();
+                        InvokeAsync(StateHasChanged);
+                    }
 
-                _isUpdating = false;
-            }
-        }), null, 0, 1000);
+                    _isUpdating = false;
+                }
+            }), null, 0, 1000);
         base.OnAfterRender(firstRender);
     }
 
@@ -210,19 +212,20 @@
 
     private string? _searchValue;
     private static string _defaultResultsText = "Что-то пошло не так...";
-    private List<string> _searchResults = new List<string>{"Идет загрузка или что-то пошло не так...", "Попробуйте ввести что-то в поиск"};
+    private List<string> _searchResults = new List<string> { "Идет загрузка или что-то пошло не так...", "Попробуйте ввести что-то в поиск" };
     public string BaseDependency { get; set; } = "";
     public List<Mod.Dependency> MainDependencies { get; set; } = new List<Mod.Dependency>();
     public List<Mod.Dependency> AdditionalDependencies { get; set; } = new List<Mod.Dependency>();
     public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
 
 
-    private List<string> DefaultResults() => Mods == null ? new List<string> { "Моды не были загружены" } :
-        Mods.OrderBy(x => x.DownloadsCount)
+    private List<string> DefaultResults() => Mods == null
+        ? new List<string> { "Моды не были загружены" }
+        : Mods.OrderBy(x => x.DownloadsCount)
             .ToList()
             .GetRange(0, 5)
             .Select(str => $"{str.Name} | {str.Title}")
-        .ToList();
+            .ToList();
 
     private ModsList.Result? _selectedMod;
 
