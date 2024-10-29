@@ -6,14 +6,14 @@
     <div class="card">
         <div class="card-header text-center">
             <h1>Поиск и скачивание модов</h1>
-            <p>Последнее общее обновление (UTC): @Data.Temp.LastUpdated.UtcDateTime.ToString("HH:mm:ss dd.MM.yyyy")</p>
-            <p>Последнее локальное обновление (UTC): @LastUpdated.UtcDateTime.ToString("HH:mm:ss dd.MM.yyyy")</p>
+            <p>Последнее общее обновление (UTC): @Data.Temp.Mods.LastUpdated.UtcDateTime.ToString("HH:mm:ss dd.MM.yyyy")</p>
+            <p>Последнее локальное обновление (UTC): @_lastUpdated.UtcDateTime.ToString("HH:mm:ss dd.MM.yyyy")</p>
             <p>Интервал общих обновлений: 12 часов</p>
             <p>Интервал локальных обновлений: 5 минут, если нет ошибок</p>
         </div>
         <div class="card-body">
             <div class="p-3">
-                @if (selectedMod != null && selectedModInfo != null)
+                @if (SelectedMod != null && SelectedModInfo != null)
                 {
                     <div class="row mt-1">
                         <div class="col ms-2 p-0">
@@ -26,15 +26,15 @@
                         </div>
                         <div class="col-auto ms-2 p-0">
                             <FluentMenuButton Class="col"
-                                              @ref=versionButton
+                                              @ref=_versionButton
                                               ButtonAppearance="@Appearance.Outline"
-                                              Text="@_selectedVersionTitle"
-                                              Items="@selectedModInfo?.Releases.Reverse().Select(x => x.Version).ToDictionary(x => x, x => x)"
-                                              OnMenuChanged="x => { selectedVersion = x.Value; }">
+                                              Text="@SelectedVersionTitle"
+                                              Items="@SelectedModInfo?.Releases.Reverse().Select(x => x.Version).ToDictionary(x => x, x => x)"
+                                              OnMenuChanged="x => { SelectedVersion = x.Value; }">
                             </FluentMenuButton>
                         </div>
 
-                        @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                        @if (!String.IsNullOrWhiteSpace(SelectedVersion))
                         {
                             <div class="col-auto ms-2 me-3 p-0">
                                 <FluentButton Appearance="Appearance.Accent" @onclick="DownloadMod">Скачать мод</FluentButton>
@@ -47,32 +47,32 @@
                         <FluentListbox aria-label="search results"
                                        TOption="string"
                                        Items=@_searchResults
-                                       SelectedOptionChanged="@(e => { _searchValue = (e != _defaultResultsText ? e : string.Empty); OnAutoCompleteChanged(mods.ToList().Find(x => $"{x.Name} | {x.Title}" == _searchValue)); })"/>
+                                       SelectedOptionChanged="@(e => { _searchValue = (e != _defaultResultsText ? e : string.Empty); OnAutoCompleteChanged(Mods.ToList().Find(x => $"{x.Name} | {x.Title}" == _searchValue)); })"/>
                     }
 
                     <br/>
                     <div class="row">
                         <div class="col-md-8">
-                            <h3>@selectedMod?.Title</h3>
+                            <h3>@SelectedMod?.Title</h3>
                             <br>
                             <dl class="row">
                                 <dt class="col-sm-3">ID:</dt>
-                                <dd class="col-sm-9" id="mod-info-name">@selectedMod?.Name</dd>
+                                <dd class="col-sm-9" id="mod-info-name">@SelectedMod?.Name</dd>
                                 <dt class="col-sm-3">Владелец:</dt>
-                                <dd class="col-sm-9" id="mod-info-owner">@selectedMod?.Owner</dd>
+                                <dd class="col-sm-9" id="mod-info-owner">@SelectedMod?.Owner</dd>
                                 <dt class="col-sm-3">Категория:</dt>
-                                <dd class="col-sm-9" id="mod-info-category">@selectedMod?.Category</dd>
+                                <dd class="col-sm-9" id="mod-info-category">@SelectedMod?.Category</dd>
                                 <dt class="col-sm-3">Описание:</dt>
-                                <dd class="col-sm-9" id="mod-info-summary">@selectedMod?.Summary</dd>
+                                <dd class="col-sm-9" id="mod-info-summary">@SelectedMod?.Summary</dd>
                                 <dt class="col-sm-3">Загрузок:</dt>
-                                <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.DownloadsCount</dd>
+                                <dd class="col-sm-9" id="mod-info-downloads">@SelectedMod?.DownloadsCount</dd>
                                 <dt class="col-sm-3">Factorio:</dt>
                                 <dd class="col-sm-9" id="mod-info-downloads">@BaseDependency</dd>
                                 <dt class="col-sm-3">Актуальная версия:</dt>
-                                <dd class="col-sm-9" id="mod-info-downloads">@selectedMod?.LatestRelease.Version</dd>
+                                <dd class="col-sm-9" id="mod-info-downloads">@SelectedMod?.LatestRelease.Version</dd>
                             </dl>
                             <br>
-                            @if (!String.IsNullOrWhiteSpace(selectedVersion))
+                            @if (!String.IsNullOrWhiteSpace(SelectedVersion))
                             {
                                 <dl class="row">
                                     @if (MainDependencies.Count > 0)
@@ -127,16 +127,16 @@
                             }
                         </div>
                         <div class="col-md-4 p-3 text-center">
-                            @if (!String.IsNullOrWhiteSpace(selectedVersion) && !String.IsNullOrWhiteSpace(selectedModInfo.Thumbnail))
+                            @if (!String.IsNullOrWhiteSpace(SelectedVersion) && !String.IsNullOrWhiteSpace(SelectedModInfo.Thumbnail) && false)
                             {
                                 <div class="float-end">
-                                    <img class="rounded-4" src="@($"https://assets-mod.factorio.com{selectedModInfo.Thumbnail}")" style="width: 200px; height:200px"/>
+                                    <img class="rounded-4" src="@($"https://assets-mod.factorio.com{SelectedModInfo.Thumbnail}")" style="width: 200px; height:200px" alt=""/>
                                 </div>
                             }
                             else
                             {
                                 <div class="float-end">
-                                    <Icon class="rounded" Name="IconName.GearFill" style="font-size: 200px!important; color:darkorange"/>
+                                    <FluentEmoji Value="@(new Emojis.Objects.Flat.Default.Gear())" Width="200px" />
                                 </div>
                             }
                         </div>
@@ -146,7 +146,7 @@
                 else
                 {
                     <div class="row">
-                        @if (mods is null || (mods != null && mods.Count() == 0))
+                        @if (Mods is null || (Mods != null && Mods.Count() == 0))
                         {
                             <h1>Идет загрузка списка модов... Пожалуйста, подождите!</h1>
                         }
@@ -165,7 +165,7 @@
                                     <FluentListbox aria-label="search results"
                                                    TOption="string"
                                                    Items=@_searchResults
-                                                   SelectedOptionChanged="@(e => { _searchValue = (e != _defaultResultsText ? e : string.Empty); OnAutoCompleteChanged(mods.ToList().Find(x => $"{x.Name} | {x.Title}" == _searchValue)); })"/>
+                                                   SelectedOptionChanged="@(e => { _searchValue = (e != _defaultResultsText ? e : string.Empty); OnAutoCompleteChanged(Mods.ToList().Find(x => $"{x.Name} | {x.Title}" == _searchValue)); })"/>
                                 }
                             </div>
                         }
@@ -179,38 +179,34 @@
 
 
 @code {
-    bool isUpdating = false;
-    DateTimeOffset LastUpdated = DateTimeOffset.MinValue;
+    bool _isUpdating = false;
+    DateTimeOffset _lastUpdated = DateTimeOffset.MinValue;
     private static Timer? WatchDog { get; set; }
-    private FluentMenuButton versionButton = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
+    private FluentMenuButton _versionButton = new();
 
     protected override void OnAfterRender(bool firstRender)
     {
         WatchDog = new(new TimerCallback(_ =>
         {
-            if (!isUpdating && !Data.Temp.ModsLoad)
+            if (!_isUpdating && !Data.Temp.Mods.ModsLoad)
             {
-                isUpdating = true;
-                if (DateTimeOffset.Now - LastUpdated > TimeSpan.FromMinutes(5))
+                _isUpdating = true;
+                if (DateTimeOffset.Now - _lastUpdated > TimeSpan.FromMinutes(5))
                 {
-                    mods = GetMods();
-                    if (mods is null || (mods != null && mods.Count() == 0)) LastUpdated = DateTimeOffset.MinValue;
-                    LastUpdated = DateTimeOffset.Now;
+                    Mods = GetMods();
+                    if (Mods is null || (Mods != null && Mods.Count() == 0)) _lastUpdated = DateTimeOffset.MinValue;
+                    _lastUpdated = DateTimeOffset.Now;
                     _searchResults = DefaultResults();
                     InvokeAsync(StateHasChanged);
                 }
 
-                isUpdating = false;
+                _isUpdating = false;
             }
         }), null, 0, 1000);
         base.OnAfterRender(firstRender);
     }
 
-    public IEnumerable<ModsList.Result>? mods { get; set; }
+    public IEnumerable<ModsList.Result>? Mods { get; set; }
 
     private string? _searchValue;
     private static string _defaultResultsText = "Что-то пошло не так...";
@@ -221,8 +217,8 @@
     public List<Mod.Dependency> BadDependencies { get; set; } = new List<Mod.Dependency>();
 
 
-    private List<string> DefaultResults() => mods == null ? new List<string> { "Моды не были загружены" } :
-        mods.OrderBy(x => x.DownloadsCount)
+    private List<string> DefaultResults() => Mods == null ? new List<string> { "Моды не были загружены" } :
+        Mods.OrderBy(x => x.DownloadsCount)
             .ToList()
             .GetRange(0, 5)
             .Select(str => $"{str.Name} | {str.Title}")
@@ -230,27 +226,27 @@
 
     private ModsList.Result? _selectedMod;
 
-    public ModsList.Result? selectedMod
+    public ModsList.Result? SelectedMod
     {
         get { return _selectedMod; }
         set
         {
             _selectedMod = value;
-            selectedVersion = "";
+            SelectedVersion = "";
             ClearDependencies();
         }
     }
 
-    public ModObj.Mod? selectedModInfo { get; set; }
+    public ModObj.Mod? SelectedModInfo { get; set; }
 
     private string _selectedVersion = "";
 
-    private string _selectedVersionTitle
+    private string SelectedVersionTitle
     {
         get { return String.IsNullOrWhiteSpace(_selectedVersion) ? "Выберите версию" : _selectedVersion; }
     }
 
-    public string selectedVersion
+    public string SelectedVersion
     {
         get { return _selectedVersion; }
         set
@@ -258,14 +254,14 @@
             if (!String.IsNullOrWhiteSpace(value))
             {
                 ClearDependencies();
-                var _mod = selectedModInfo.Releases.ToList().Find(x => x.Version == value);
-                if (_mod is null)
+                var mod = SelectedModInfo.Releases.ToList().Find(x => x.Version == value);
+                if (mod is null)
                 {
-                    _mod = selectedModInfo.Releases.ToList().Last();
-                    value = _mod.Version;
+                    mod = SelectedModInfo.Releases.ToList().Last();
+                    value = mod.Version;
                 }
 
-                foreach (var dep in _mod.InfoJson.Dependencies)
+                foreach (var dep in mod.InfoJson.Dependencies)
                 {
                     string pattern = @"^((?:)|(?:\?)|(?:\(\?\))|(?:!)|(?:~))(?:\s?)([%\w\s-]+)(?:\s{0,})(?:((?:=>)|(?:==)|(?:=)|(?:<=)|(?:>=)|(?:<)|(?:>)|(?:))(?:\s{0,})((\d+\.\d+\.\d+)|(\d+\.\d+)))?$";
                     Match m = Regex.Match(dep, pattern, RegexOptions.IgnoreCase);
@@ -304,7 +300,7 @@
     {
         if (!string.IsNullOrWhiteSpace(_searchValue))
         {
-            var results = mods.Where(mod => mod.Name.Contains(_searchValue, StringComparison.OrdinalIgnoreCase)
+            var results = Mods.Where(mod => mod.Name.Contains(_searchValue, StringComparison.OrdinalIgnoreCase)
                                             || mod.Title.Contains(_searchValue, StringComparison.OrdinalIgnoreCase))
                 .Select(str => $"{str.Name} | {str.Title}")
                 .ToList();
@@ -319,7 +315,7 @@
 
     private IEnumerable<ModsList.Result> GetMods()
     {
-        if (!Data.Temp.ModsLoad) return Data.Temp.MainModsList.ToList().OrderByDescending(mod => mod.DownloadsCount);
+        if (!Data.Temp.Mods.ModsLoad) return Data.Temp.Mods.MainModsList.ToList().OrderByDescending(mod => mod.DownloadsCount);
         else return new List<ModsList.Result>();
     }
 
@@ -327,10 +323,10 @@
     {
         if (mod != null)
         {
-            selectedModInfo = null;
-            if (!Data.Temp.LastUpdateMods.ContainsKey(mod.Name))
+            SelectedModInfo = null;
+            if (!Data.Temp.Mods.LastUpdateMods.ContainsKey(mod.Name))
             {
-                Data.Temp.LastUpdateMods.Add(mod.Name,
+                Data.Temp.Mods.LastUpdateMods.Add(mod.Name,
                     new Mod.Info
                     {
                         Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full")),
@@ -338,16 +334,16 @@
                     });
             }
 
-            if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.LastUpdateMods[mod.Name].LastUpdate > 86400)
+            if (((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() - Data.Temp.Mods.LastUpdateMods[mod.Name].LastUpdate > 86400)
             {
-                Data.Temp.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
-                Data.Temp.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+                Data.Temp.Mods.LastUpdateMods[mod.Name].Mod = ModObj.Mod.FromJson(LMC.Web.GetString($"https://mods.factorio.com/api/mods/{mod.Name}/full"));
+                Data.Temp.Mods.LastUpdateMods[mod.Name].LastUpdate = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
             }
 
-            selectedModInfo = Data.Temp.LastUpdateMods[mod.Name].Mod;
-            selectedMod = mod;
+            SelectedModInfo = Data.Temp.Mods.LastUpdateMods[mod.Name].Mod;
+            SelectedMod = mod;
             BaseDependency = mod.LatestRelease.InfoJson.FactorioVersion;
-            if (selectVersion) selectedVersion = selectedMod.LatestRelease.Version;
+            if (selectVersion) SelectedVersion = SelectedMod.LatestRelease.Version;
             _searchResults.Clear();
         }
     }
@@ -364,18 +360,18 @@
 /*FHW.Core.Downloader.AddQueue(new Core.Downloader.Download { Uri = $@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip",
     FileName = $"{selectedModInfo.Name}_{selectedVersion}.zip",
     Title = $"Mod: {selectedModInfo.Name} {selectedVersion}" });*/
-        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{selectedModInfo.Name}/{selectedVersion}.zip");
+        NavigationManager.NavigateTo($@"https://official-factorio-mirror.re146.dev/{SelectedModInfo.Name}/{SelectedVersion}.zip");
     }
 
-    private void FindModByName(string Name, string? Version = null)
+    private void FindModByName(string name, string? version = null)
     {
-        var fMod = mods.ToList().Find(x => x.Name == Name);
+        var fMod = Mods.ToList().Find(x => x.Name == name);
         if (fMod != null)
         {
-            if (String.IsNullOrWhiteSpace(Version)) Version = null;
-            if (Version != null) OnAutoCompleteChanged(fMod, false);
+            if (String.IsNullOrWhiteSpace(version)) version = null;
+            if (version != null) OnAutoCompleteChanged(fMod, false);
             else OnAutoCompleteChanged(fMod, true);
-            if (Version != null) selectedVersion = Version;
+            if (version != null) SelectedVersion = version;
         }
         else
         {

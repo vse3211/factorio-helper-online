@@ -1,10 +1,8 @@
-﻿
-namespace FHW.Data
+namespace FHW.Data.Temp;
+
+public class Mods
 {
-    public class Temp
-    {
-        #region Mods
-        public static bool ModsLoad { get; private set; } = false;
+    public static bool ModsLoad { get; private set; } = false;
         public static Exception? ModsLoadError { get; private set; } = null;
 
         public static List<ModsList.Result> MainModsList { get; private set; } = new List<ModsList.Result>();
@@ -54,6 +52,4 @@ namespace FHW.Data
                 Console.WriteLine($"[{guid}] {DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss zzz")}: Mods loaded!");
             }
         }
-        #endregion
-    }
 }
