@@ -51,7 +51,7 @@ public class Controller
             (string? oldVersion, string? newVersion) = ExtractVersion(filename);
             Console.WriteLine($"\n\nHash: {hash}, Filename: {filename}, Old Version: {oldVersion}, New Version: {newVersion}");
 
-            Classes.FactorioFileInfo fileInfo = new(hash, filename);
+            Classes.FileInfoExtractor fileInfo = new(filename);
             System.Console.WriteLine(fileInfo);
         }
     }
