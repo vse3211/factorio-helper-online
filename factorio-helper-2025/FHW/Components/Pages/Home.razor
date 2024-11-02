@@ -26,13 +26,22 @@
             <FHW.Components.Pages.Game.Download/>
         </Content>
     </FluentTab>
-    <FluentTab Id="tab-3" Disabled="true">
+    <FluentTab Id="tab-3" Disabled="false">
         <Header>
             <FluentIcon Value="@(new Icons.Filled.Size16.BinderTriangle())" /> &nbsp;
             Чертежи
         </Header>
         <Content>
-            Content 2
+            <button @onclick="FHW.Core.Game.Controller.CheckGameVersion">CheckGameVersion (TEST ONLY!)</button>
         </Content>
     </FluentTab>
 </FluentTabs>
+
+@code {
+    protected override void OnInitialized()
+    {
+        //FHW.Core.Game.Controller.CheckGameVersion();
+
+        base.OnInitialized();
+    }
+}

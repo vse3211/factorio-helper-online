@@ -17,6 +17,7 @@ LABEL org.opencontainers.image.source="https://github.com/vse3211/factorio-helpe
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN apk add --no-cache icu-libs tzdata
 ENV TZ=Asia/Almaty
+RUN apk add --no-cache curl
 
 # Открытые порты
 EXPOSE 8080

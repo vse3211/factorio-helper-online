@@ -4,16 +4,23 @@
             <h1>Скачать Factorio</h1>
         </div>
         <div class="card-body">
-            <a href="https://factorio.com/download/sha256sums/" target="_blank">Проверить</a> игру на подлинность<br/>
+            <a href="https://factorio.com/download/sha256sums/" target="_blank">Проверить</a> игру на подлинность<br />
             Доступные файлы
             <ul>
                 @try
                 {
-                    @foreach (var v in @Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/factorio"))
+                    if (Directory.Exists(Directory.GetCurrentDirectory() + "/wwwroot/factorio"))
                     {
-                        <li>
-                            <a href="./factorio/@Path.GetFileName(v)" target="_blank">@Path.GetFileName(v)</a>
-                        </li>
+                        @foreach (var v in @Directory.GetFiles(Directory.GetCurrentDirectory() + "/wwwroot/factorio"))
+                        {
+                            <li>
+                                <a href="./factorio/@Path.GetFileName(v)" target="_blank">@Path.GetFileName(v)</a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li>Папка не существует</li>
                     }
                 }
                 catch (Exception ex)
