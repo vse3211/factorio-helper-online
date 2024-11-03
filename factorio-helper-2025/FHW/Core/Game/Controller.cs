@@ -36,12 +36,15 @@ public class Controller
     public static bool isGameUpdating;
     public static bool isGameExtracting;
 
-    public static void CheckGameVersion()
+    public static void CheckGameVersionOld()
     {
         System.Console.WriteLine("Start CheckGameVersion");
         string? sha256data = LMC.Web.GetString("https://factorio.com/download/sha256sums/");
         if (sha256data is null) return;
-        //List<string> sha256list = sha256data.Split('\n').ToList();
+
+        //factorioUpdateService.GetAvailablePackages();
+
+
         List<string[]> sha256list = GetHashFileList(sha256data);
 
         foreach (var item in sha256list)
@@ -51,9 +54,20 @@ public class Controller
             (string? oldVersion, string? newVersion) = ExtractVersion(filename);
             Console.WriteLine($"\n\nHash: {hash}, Filename: {filename}, Old Version: {oldVersion}, New Version: {newVersion}");
 
-            Classes.FileInfoExtractor fileInfo = new(filename);
+            Classes.FileInfoExtractor fileInfo = new(hash, filename);
             System.Console.WriteLine(fileInfo);
         }
+    }
+
+    public static async Task CheckGameVersion(FHW.Services.FactorioService factorioService)
+    {
+        var sums = await factorioService.GetSHA256Sums();
+        if (sums is null)
+        {
+            System.Console.WriteLine("SHA256SUMS IS NULL");
+            return;
+        }
+        sums.ForEach(x => Console.WriteLine(x));
     }
 
     static List<string[]> GetHashFileList(string response)

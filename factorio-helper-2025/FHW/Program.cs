@@ -9,11 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-
-builder.Services.AddHttpClient();
 builder.Services.AddFluentUIComponents(options =>
 {
     options.ValidateClassNames = false;
+});
+
+builder.Services.AddHttpClient<FHW.Services.FactorioService>((serviceProvider, httpClient) => {
+    httpClient.BaseAddress = new Uri("https://factorio.com");
+});
+builder.Services.AddHttpClient<FHW.Services.FactorioUpdateService>((serviceProvider, httpClient) => {
+    httpClient.BaseAddress = new Uri("https://updater.factorio.com");
 });
 
 
