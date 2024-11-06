@@ -1,10 +1,56 @@
 <div class="p-3">
+    <div class="card mb-3">
+        <div class="card-header text-center">
+            <h3>Доступные версии на Factorio.com (обновляется раз в 5 минут)</h3>
+        </div>
+        <div class="card-body">
+            @if (Core.Game.Controller.AvailableVersions is null)
+            {
+                <FluentProgress></FluentProgress>
+                <h1>Идет поиск доступных версий... Пожалуйста, подождите!</h1>
+            }
+            else
+            {
+                isVersionsLoaded = true;
+                <ul>
+                    <h3>Стабильные версии</h3>
+                    <li>
+                        Stable alpha: @Core.Game.Controller.AvailableVersions.Stable.Alpha
+                    </li>
+                    <li>
+                        Stable expansion: @Core.Game.Controller.AvailableVersions.Stable.Expansion
+                    </li>
+                    <li>
+                        Stable demo: @Core.Game.Controller.AvailableVersions.Stable.Demo
+                    </li>
+                    <li>
+                        Stable headless: @Core.Game.Controller.AvailableVersions.Stable.Headless
+                    </li>
+                    <br />
+                    <h3>Эксперементальные версии</h3>
+                    <li>
+                        Experimental alpha: @Core.Game.Controller.AvailableVersions.Experimental.Alpha
+                    </li>
+                    <li>
+                        Experimental expansion: @Core.Game.Controller.AvailableVersions.Experimental.Expansion
+                    </li>
+                    <li>
+                        Experimental demo: @Core.Game.Controller.AvailableVersions.Experimental.Demo
+                    </li>
+                    <li>
+                        Experimental headless: @Core.Game.Controller.AvailableVersions.Experimental.Headless
+                    </li>
+                </ul>
+                <br/>
+                <p><a href="https://factorio.com/download/sha256sums/" target="_blank">Список</a> хешей для проверки на подлинность</p>
+            }
+        </div>
+    </div>
     <div class="card">
         <div class="card-header text-center">
             <h1>Скачать Factorio</h1>
         </div>
         <div class="card-body">
-            <a href="https://factorio.com/download/sha256sums/" target="_blank">Проверить</a> игру на подлинность<br />
             Доступные файлы
             <ul>
                 @try
@@ -37,5 +83,28 @@
 </div>
 
 @code {
+    private bool isVersionsLoaded = false;
+    public static Timer? WatchDog { get; private set; }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            WatchDog = new(new TimerCallback(async _ =>
+            {
+                await InvokeAsync(() => {
+                    if (!isVersionsLoaded && Core.Game.Controller.AvailableVersions != null)
+                    {
+                        StateHasChanged();
+                    }
+                });
+            }), null, 0, 1000);
+        }
+
+    }
 }

@@ -32,4 +32,8 @@
       <AdditionalFiles Include="Components\Pages\Blueprints\Upload.razor" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Classes/Game/" />
+    </ItemGroup>
+
 </Project>

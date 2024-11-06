@@ -10,11 +10,9 @@ namespace FHW.Core.Game;
 
 public class Controller
 {
-    private static FactorioService? factorioService;
-    private static FactorioUpdateService? factorioUpdateService;
     private static DateTimeOffset GlobalLastRefresh = DateTimeOffset.MinValue;
     private static int failedTryCount = 0;
-    private static Timer WatchDog = new(new TimerCallback(async _ =>
+    public static Timer? WatchDog { get; private set; } = new(new TimerCallback(async _ =>
     {
         if (DateTimeOffset.Now - GlobalLastRefresh > TimeSpan.FromSeconds((failedTryCount + 1) * 10))
         {
@@ -22,16 +20,17 @@ public class Controller
             {
                 System.Console.WriteLine("Application cant work!");
                 await WatchDog!.DisposeAsync();
+                WatchDog = null;
                 return;
             }
-            if (factorioService is null)
+            if (FactorioService.Instance is null)
             {
                 System.Console.WriteLine($"{DateTime.UtcNow} factorioService is NULL!");
                 GlobalLastRefresh = DateTimeOffset.Now;
                 failedTryCount++;
                 return;
             }
-            if (factorioUpdateService is null)
+            if (FactorioUpdateService.Instance is null)
             {
                 System.Console.WriteLine($"{DateTime.UtcNow} factorioUpdateService is NULL!");
                 GlobalLastRefresh = DateTimeOffset.Now;
@@ -39,13 +38,13 @@ public class Controller
                 return;
             }
 
+            
             if (!isAvailableVersionUpdating && DateTimeOffset.Now - LastVersionsCheck > TimeSpan.FromMinutes(5))
             {
                 isAvailableVersionUpdating = true;
-                await UpdateAvailableVersions(factorioService);
+                await UpdateAvailableVersions(FactorioService.Instance);
                 isAvailableVersionUpdating = false;
             }
-
         }
     }), null, 0, 100);
 
@@ -55,15 +54,13 @@ public class Controller
     public static DateTimeOffset LastVersionsCheck = DateTimeOffset.MinValue;
     public static string BasicFileTag => "factorio";
     public static string ExtensionFileTag => "factorio-space-age";
+
     public static Classes.LatestVersions.Branch? AvailableVersions;
     public static bool isAvailableVersionUpdating;
 
     public static string? InstalledAlphaVersion { get; private set; }
-
     public static string? InstalledExtensionVersion { get; private set; }
-
-    public static bool isUpdating;
-    public static bool isExtracting;
+    public static bool isInstalationInProgress;
 
     public static async Task UpdateAvailableVersions(FactorioService factorioService)
     {

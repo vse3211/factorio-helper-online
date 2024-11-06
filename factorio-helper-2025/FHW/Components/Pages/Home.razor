@@ -2,6 +2,7 @@
 @inject IToastService ToastService
 @inject NavigationManager NavigationManager
 @inject Services.FactorioService factorioService
+@inject Services.FactorioUpdateService factorioUpdateService
 @using System.Text.RegularExpressions
 
 <PageTitle>Factorio Helper Tools</PageTitle>
@@ -9,7 +10,7 @@
 
 
 <FluentTabs ActiveTabId="tab-1">
-    <FluentTab Id="tab-1">
+    <FluentTab Id="tab-1" Disabled="GetModsCoreStatus()">
         <Header>
             <FluentIcon Value="@(new Icons.Regular.Size16.Box())" /> &nbsp;
             Моды
@@ -18,22 +19,23 @@
             <FHW.Components.Pages.Mods.Download/>
         </Content>
     </FluentTab>
-    <FluentTab Id="tab-2">
+    <FluentTab Id="tab-2" Disabled="GetGamesCoreStatus()">
         <Header>
             <FluentIcon Value="@(new Icons.Regular.Size16.Settings())" /> &nbsp;
             Игра
         </Header>
         <Content>
-            <FHW.Components.Pages.Game.Download/>
+            <FHW.Components.Pages.Game.Home/>
         </Content>
     </FluentTab>
-    <FluentTab Id="tab-3" Disabled="false">
+    <FluentTab Id="tab-3" Disabled="GetBlueprintsCoreStatus()">
         <Header>
             <FluentIcon Value="@(new Icons.Filled.Size16.BinderTriangle())" /> &nbsp;
             Чертежи
         </Header>
         <Content>
-            <button @onclick="() => FHW.Core.Game.Controller.CheckGameVersion(factorioService)">CheckGameVersion (TEST ONLY!)</button>
+            Not released
+            Не смотри, я стесняюсь!
         </Content>
     </FluentTab>
 </FluentTabs>
@@ -44,5 +46,20 @@
         //FHW.Core.Game.Controller.CheckGameVersion();
 
         base.OnInitialized();
+    }
+
+    private bool GetModsCoreStatus()
+    {
+        return false;
+    }
+
+    private bool GetGamesCoreStatus()
+    {
+        return Core.Game.Controller.WatchDog is null;
+    }
+
+    private bool GetBlueprintsCoreStatus()
+    {
+        return true;
     }
 }

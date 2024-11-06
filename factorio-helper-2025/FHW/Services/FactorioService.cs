@@ -4,11 +4,13 @@ namespace FHW.Services;
 
 public sealed class FactorioService
 {
+    public static FactorioService? Instance { get; private set; }
     private readonly HttpClient _client;
 
     public FactorioService(HttpClient client)
     {
         _client = client;
+        if (Instance is null) Instance = this;
     }
 
     public async Task<Core.Game.Classes.LatestVersions.Branch?> GetLatestVersionsAsync()
