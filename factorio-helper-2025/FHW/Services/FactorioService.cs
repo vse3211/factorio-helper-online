@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using FHW.Components.Pages.Game.Download;
 
 namespace FHW.Services;
 
@@ -12,7 +11,13 @@ public sealed class FactorioService
         _client = client;
     }
 
-    public async Task<List<Core.Game.Classes.FileInfoExtractor>?> GetSHA256Sums()
+    public async Task<Core.Game.Classes.LatestVersions.Branch?> GetLatestVersionsAsync()
+    {
+        Core.Game.Classes.LatestVersions.Branch? result = await _client.GetFromJsonAsync<Core.Game.Classes.LatestVersions.Branch>("api/latest-releases");
+        return result;
+    }
+
+    public async Task<List<Core.Game.Classes.FileInfoExtractor>?> GetSHA256SumsAsync()
     {
         string? sha256data = await _client.GetStringAsync($"download/sha256sums");
         if (sha256data is null) return null;
