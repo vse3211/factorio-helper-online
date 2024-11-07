@@ -1,4 +1,7 @@
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace FHW.Services;
 
@@ -34,6 +37,51 @@ public sealed class FactorioService
             if (fileInfo != null) content.Add(fileInfo);
         }
         return content;
+    }
+
+    public async Task DownloadGame(string version, string type, string platform, string destinationFolder, string? username, string? token)
+    {
+        if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(token)) throw new ArgumentNullException("No username or token!");
+        if (!Directory.Exists(destinationFolder)) throw new Exception("Path not exists!");
+        string url = $"get-download/{version}/{type}/{platform}?username={username}&token={token}";
+        
+        HttpResponseMessage response = await _client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+        var finalUrl = response.RequestMessage!.RequestUri!.ToString();
+        string? fileName = GetFileNameFromContentDisposition(response);
+        if (string.IsNullOrEmpty(fileName)) fileName = Path.GetFileName(finalUrl);
+        fileName = fileName.Split('?')[0];
+        string filePath = Path.Combine(destinationFolder, fileName);
+        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+        var totalBytesRead = 0L;
+        var buffer = new byte[8192];
+        int bytesRead;
+        using (var stream = await response.Content.ReadAsStreamAsync())
+        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+        {
+            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await fileStream.WriteAsync(buffer, 0, bytesRead);
+                totalBytesRead += bytesRead;
+
+                // Вычисляем прогресс и передаем его через IProgress
+                if (totalBytes != -1)
+                {
+                    double percentComplete = (double)totalBytesRead / totalBytes * 100;
+                    Core.Game.Controller.downloadingProgress = Convert.ToInt32(percentComplete);
+                }
+            }
+        }
+        System.Console.WriteLine("SUCCESS: Downloading game completed!");
+    }
+
+    private string? GetFileNameFromContentDisposition(HttpResponseMessage response)
+    {
+        if (response.Content.Headers.ContentDisposition != null)
+        {
+            return response.Content.Headers.ContentDisposition.FileName?.Trim('"');
+        }
+        return null;
     }
 
     static List<string[]> GetHashFileList(string response)

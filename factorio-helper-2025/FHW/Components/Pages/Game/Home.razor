@@ -1,7 +1,7 @@
 <div class="p-3">
     <div class="card mb-3">
         <div class="card-header text-center">
-            <h3>Доступные версии на Factorio.com (обновляется раз в 5 минут)</h3>
+            <h3>Доступные версии на Factorio.com</h3>
         </div>
         <div class="card-body">
             @if (Core.Game.Controller.AvailableVersions is null)
@@ -41,14 +41,19 @@
                         Experimental headless: @Core.Game.Controller.AvailableVersions.Experimental.Headless
                     </li>
                 </ul>
-                <br/>
-                <p><a href="https://factorio.com/download/sha256sums/" target="_blank">Список</a> хешей для проверки на подлинность</p>
+                <br />
+                <p><a href="https://factorio.com/download/sha256sums/" target="_blank">Список</a> хешей для проверки на
+                подлинность</p>
             }
         </div>
     </div>
     <div class="card">
         <div class="card-header text-center">
             <h1>Скачать Factorio</h1>
+            @if (Core.Game.Controller.isInstalationInProgress)
+            {
+                <FluentProgress Min="0" Max="100" Value="Core.Game.Controller.downloadingProgress"></FluentProgress>
+            }
         </div>
         <div class="card-body">
             Доступные файлы
@@ -84,23 +89,20 @@
 
 @code {
     private bool isVersionsLoaded = false;
+    private DateTimeOffset LastCheck = DateTimeOffset.MinValue;
     public static Timer? WatchDog { get; private set; }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-    }
-
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
             WatchDog = new(new TimerCallback(async _ =>
             {
-                await InvokeAsync(() => {
-                    if (!isVersionsLoaded && Core.Game.Controller.AvailableVersions != null)
+                await InvokeAsync(() =>
+                {
+                    if (isVersionsLoaded && DateTimeOffset.Now - LastCheck > TimeSpan.FromSeconds(1))
                     {
                         StateHasChanged();
+                        LastCheck = DateTimeOffset.Now;
                     }
                 });
             }), null, 0, 1000);
